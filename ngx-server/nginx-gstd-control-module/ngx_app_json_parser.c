@@ -1,7 +1,6 @@
 #include <gstd_pipe_logic_build.h>
 #include <json-glib/json-glib.h>
 #include "libgstc.h"
-#include "gst/gst.h"
 #include "partten.h"
 
 GstClient* connect_gstd(){
@@ -18,8 +17,40 @@ GstClient* connect_gstd(){
   return client; 
 }
 
+gint is_exist(gchar* pipename){
+  GstClient *client = connect_gstd();
+  gchar** pipelist;
+  gint len;
+  gstc_pipeline_list(client, &pipelist, &len);
+  for(int i=0; i<len; i++){
+    if( !strcmp( pipename, pipelist[i] ) ){
+      ngx_log_error(NGX_LOG_ERR,ngx_cycle->log,0,"Pipeline exist!\n");
+      return 1;
+    }
+  }
+  gstc_client_free (client);
+  return 0;
+}
+
+GstcStatus get_property_value(const gchar* pname,const gchar *element, const gchar *property, gchar *value){
+  GstClient *client = connect_gstd();
+  GstcStatus ret;
+
+  ret = gstc_element_get (client, pname, element, property, "%s", value);
+  if (GSTC_OK == ret) {
+    ngx_log_error(NGX_LOG_ERR,ngx_cycle->log,0,"Get value %s = %s!\n", property, value);
+  } else {
+    ngx_log_error(NGX_LOG_ERR,ngx_cycle->log,0,"Error get value\n");
+  }
+  gstc_client_free (client);
+  return ret;
+}
+
 void create_gstd(GstClient *client, PipelineDescribe* pd){
   GstcStatus ret;
+  if(is_exist(pd->pipename)){
+    return ;
+  }
   ret = gstc_pipeline_create(client, pd->pipename, pd->__str);
   if (GSTC_OK == ret) {
     ngx_log_error(NGX_LOG_ERR,ngx_cycle->log,0,"Pipeline created successfully!\n");
@@ -73,7 +104,7 @@ void set_gstd(GstClient *client, PipelineDescribe* pd){
    if(pd->__args.sets[i].s == 1){
     ret = gstc_element_set (client, pd->pipename, pd->__args.sets[i].ele_name, pd->__args.sets[i].property, "%s", pd->__args.sets[i].property_value);
     if (GSTC_OK == ret) {
-      ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"Pipeline set opt !\n");
+      ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"Pipeline set opt %s %s %s %s\n",pd->pipename,pd->__args.sets[i].ele_name, pd->__args.sets[i].property, pd->__args.sets[i].property_value);
     } else {
       ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"Unable to set pipeline: \n");
     }
@@ -155,37 +186,55 @@ gchar* message_process(gchar* msg){
     sprintf(pd->__str, __STREAM_OUT__rtmp(atrack,vtrack), pd->__args.out_uri, pd->pipename, vn, pd->pipename, an);
 
   }else if(!strcmp(cmd, "switch")){
-
+    int a,v;
     ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"switch \n");
-
     pd->cmd = CREATE | PLAY;
     sprintf(pd->pipename, "%s","preview");
     sprintf(pd->__args.prev_uri, "%s", "rtmp://192.168.0.134/live/preview");
     sprintf(vn,"vtrack-id-%d",id);
     sprintf(an,"atrack-id-%d",id);
     sprintf(pd->__str, __STREAM_OUT__rtmp(atrack,vtrack), pd->__args.prev_uri, pd->pipename, vn, pd->pipename, an);
-
     convert_process(pd);
 
     pd->cmd = SET_OPT;
     ret = json_object_get_string_member (obj,"video_id");
-    if(atoi(ret)!=-1){
-      sprintf(pd->__args.sets[0].ele_name, "%s", "videosrc");
+    v = atoi(ret);
+    if(v !=-1){
+      sprintf(pd->__args.sets[0].ele_name, "%spreview", "videosrc");
       sprintf(pd->__args.sets[0].property, "%s", "listen-to");
       sprintf(pd->__args.sets[0].property_value, "vtrack-id-%s",ret);
       pd->__args.sets[0].s = 1;
     }
     ret = json_object_get_string_member (obj,"audio_id");
-    if(atoi(ret)!=-1){
-      sprintf(pd->__args.sets[0].ele_name, "%s", "audiosrc");
+    a = atoi(ret);
+    if(a !=-1){
+      sprintf(pd->__args.sets[1].ele_name, "%spreview", "audiosrc");
       sprintf(pd->__args.sets[1].property, "%s", "listen-to");
       sprintf(pd->__args.sets[1].property_value , "atrack-id-%s",ret);
-      pd->__args.sets[0].s = 1;
+      pd->__args.sets[1].s = 1;
     }
 
+    if(is_exist("publish")){
+      convert_process(pd);
+      if( a != -1){
+        sprintf(pd->__args.sets[1].ele_name, "%spublish", "audiosrc");
+      }
+      if( v != -1){
+        sprintf(pd->__args.sets[0].ele_name, "%spublish", "videosrc");
+      }
+      sprintf(pd->pipename, "%s", "publish");
+    } 
 
   }else if(!strcmp(cmd, "publish")){
-
+    GstcStatus r;
+    r = get_property_value("preview","audiosrcpreview","listen-to",an);
+    if(ret != GSTC_OK){
+      return NULL;
+    }
+    r = get_property_value("preview","videosrcpreview","listen-to",vn);
+    if(ret != GSTC_OK){
+      return NULL;
+    }
     pd->cmd = CREATE | PLAY;
     sprintf(pd->pipename, "%s", "publish");
     ret = json_object_get_string_member (obj,"url");

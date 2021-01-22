@@ -1,0 +1,17 @@
+# ngx_addon_name 表示模块名称
+# HTTP_MODULES 表示定义HTTP_MODULES模块，多个模块以空格分开，为了不覆盖之前的模块，使用$HTTP_MODULES代表已经存在的
+# NGX_ADDON_SRCS 代表模块代码路径
+# CORE_LIBS 代表模块需要的库文件　
+
+ngx_addon_name=ngx_gstd_control_module
+HTTP_MODULES="$HTTP_MODULES ngx_gstd_control_module"
+NGX_ADDON_SRCS="$NGX_ADDON_SRCS \
+                $ngx_addon_dir/ngx_gstd_control_module.c \
+                $ngx_addon_dir/ngx_app_json_parser.c \
+                "
+NGX_ADDON_DEPS="$NGX_ADDON_DEPS                                     \
+               $ngx_addon_dir/gstd_pipe_logic_build.h               \
+               "
+CORE_INCS="$CORE_INCS /home/hertz/sdb1/hbsmsz/Install/include  /home/hertz/sdb1/cerbero/build/dist/linux_x86_64/include/glib-2.0 /home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib/glib-2.0/include /home/hertz/sdb1/cerbero/build/dist/linux_x86_64/include/json-glib-1.0 /home/hertz/sdb1/cerbero/build/dist/linux_x86_64/include/gstreamer-1.0"
+CORE_LIBS="$CORE_LIBS -lpcre -L/home/hertz/sdb1/hbsmsz/Install/lib/x86_64-linux-gnu -lgstc-1.0 -ljansson -lgstreamer-1.0 -ljson-glib-1.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0"
+CFLAGS="$CFLAGS -I $ngx_addon_dir"

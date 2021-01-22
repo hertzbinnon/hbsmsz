@@ -18,6 +18,7 @@ echo "configure start ..."
 --without-mail_smtp_module \
 --with-stream_ssl_module \
 --add-module=../nginx-gstd-control-module \
+--add-module=../ngx_http_echo_module \
 --with-debug
  echo "configure end!"
 make install

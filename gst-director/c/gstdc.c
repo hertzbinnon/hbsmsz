@@ -16,7 +16,7 @@ GstClient* connect_gstd(){
   if(!__client){
     ret = gstc_client_new (address, port, wait_time, keep_open, &__client);
     if (GSTC_OK != ret) {
-      ngx_log_error(NGX_LOG_ERR,ngx_cycle->log,0,"Connected Daemon Error !!! \n");
+      g_print("Connected Daemon Error !!! \n");
     }
   }
   return __client; 
@@ -29,7 +29,7 @@ gint is_exist(gchar* pipename){
   gstc_pipeline_list(client, &pipelist, &len);
   for(int i=0; i<len; i++){
     if( !strcmp( pipename, pipelist[i] ) ){
-      ngx_log_error(NGX_LOG_ERR,ngx_cycle->log,0,"Pipeline exist!\n");
+      g_print("Pipeline exist!\n");
       return 1;
     }
   }
@@ -43,9 +43,9 @@ GstcStatus get_property_value(const gchar* pname,const gchar *element, const gch
 
   ret = gstc_element_get (client, pname, element, property, "%s", value);
   if (GSTC_OK == ret) {
-    ngx_log_error(NGX_LOG_ERR,ngx_cycle->log,0,"Get value %s = %s!\n", property, value);
+    g_print("Get value %s = %s!\n", property, value);
   } else {
-    ngx_log_error(NGX_LOG_ERR,ngx_cycle->log,0,"Error get value\n");
+    g_print("Error get value\n");
   }
   //gstc_client_free (client);
   return ret;
@@ -58,9 +58,9 @@ void create_gstd(GstClient *client, PipelineDescribe* pd){
   }
   ret = gstc_pipeline_create(client, pd->pipename, pd->__str);
   if (GSTC_OK == ret) {
-    ngx_log_error(NGX_LOG_ERR,ngx_cycle->log,0,"Pipeline created successfully!\n");
+    g_print("Pipeline created successfully!\n");
   } else {
-    ngx_log_error(NGX_LOG_ERR,ngx_cycle->log,0,"Error creating pipeline:%s-->%s\n",pd->pipename,pd->__str);
+    g_print("Error creating pipeline:%s-->%s\n",pd->pipename,pd->__str);
   }
 }
 
@@ -68,9 +68,9 @@ void play_gstd(GstClient *client, PipelineDescribe* pd){
   GstcStatus ret;
   ret = gstc_pipeline_play (client, pd->pipename);
   if (GSTC_OK == ret) {
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"Pipeline set to playing!\n");
+    g_print( "Pipeline set to playing!\n");
   } else {
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"Unable to play pipeline: \n");
+    g_print( "Unable to play pipeline: \n");
   }
 }
 
@@ -78,9 +78,9 @@ void stop_gstd(GstClient *client, PipelineDescribe* pd){
   GstcStatus ret;
   ret = gstc_pipeline_pause(client, pd->pipename);
   if (GSTC_OK == ret) {
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"Pipeline set to stop !\n");
+    g_print( "Pipeline set to stop !\n");
   } else {
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"Unable to stop pipeline: \n");
+    g_print( "Unable to stop pipeline: \n");
   }
 }
 
@@ -88,9 +88,9 @@ void delete_gstd(GstClient *client, PipelineDescribe* pd){
   GstcStatus ret;
   ret = gstc_pipeline_delete(client, pd->pipename);
   if (GSTC_OK == ret) {
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"Pipeline set to delete !\n");
+    g_print( "Pipeline set to delete !\n");
   } else {
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"Unable to delete pipeline: \n");
+    g_print( "Unable to delete pipeline: \n");
   }
 }
 
@@ -103,15 +103,15 @@ void set_gstd(GstClient *client, PipelineDescribe* pd){
 
   ret = gstc_pipeline_list_elements(client, pd->pipename, &ele, &len);
   for(int i = 0; i < len; i++){
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"element name %s\n",ele[i]);
+    g_print( "element name %s\n",ele[i]);
   }
   for(int i = 0; i < 1024; i++){
    if(pd->__args.sets[i].s == 1){
     ret = gstc_element_set (client, pd->pipename, pd->__args.sets[i].ele_name, pd->__args.sets[i].property, "%s", pd->__args.sets[i].property_value);
     if (GSTC_OK == ret) {
-      ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"Pipeline set opt %s %s %s %s\n",pd->pipename,pd->__args.sets[i].ele_name, pd->__args.sets[i].property, pd->__args.sets[i].property_value);
+      g_print( "Pipeline set opt %s %s %s %s\n",pd->pipename,pd->__args.sets[i].ele_name, pd->__args.sets[i].property, pd->__args.sets[i].property_value);
     } else {
-      ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"Unable to set pipeline: \n");
+      g_print( "Unable to set pipeline: \n");
     }
    }else break;
   }
@@ -120,26 +120,26 @@ void set_gstd(GstClient *client, PipelineDescribe* pd){
 void convert_process(PipelineDescribe* pd){
   GstClient *client = connect_gstd();
   if( pd->cmd & CREATE ){
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"CREATE \n");
+    g_print( "CREATE \n");
     create_gstd(client, pd);
   }
   if( pd->cmd & PLAY ){
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"PLAY\n");
+    g_print( "PLAY\n");
     play_gstd(client, pd);
   }
 
   if( pd->cmd & STOP){
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"STOP\n");
+    g_print( "STOP\n");
     stop_gstd(client, pd);
   }
 
   if( pd->cmd & DELETE){
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"DELETE\n");
+    g_print( "DELETE\n");
     delete_gstd(client, pd);
   }
 
   if( pd->cmd & SET_OPT ){
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"SET_OPT\n");
+    g_print( "SET_OPT\n");
     set_gstd(client,pd);
   }
 //free_client:
@@ -183,7 +183,7 @@ gchar* message_process(gchar* msg){
     sprintf(an,"atrack-id-%d",id);
     sprintf(pd->__str,__STREAM_IN__(atrack,vtrack), pd->__args.src_uri, vn, an);
 
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"pull-- %s \n",pd->__str);
+    g_print( "pull-- %s \n",pd->__str);
 
     convert_process(pd);
     sprintf(pd->pipename, "channel-id-%d", id);
@@ -192,7 +192,7 @@ gchar* message_process(gchar* msg){
 
   }else if(!strcmp(cmd, "switch")){
     int a,v;
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"switch \n");
+    g_print( "switch \n");
     pd->cmd = CREATE | PLAY;
     sprintf(pd->pipename, "%s","preview");
     sprintf(pd->__args.prev_uri, "%s", "rtmp://192.168.0.134/live/preview");
@@ -245,21 +245,21 @@ gchar* message_process(gchar* msg){
     ret = json_object_get_string_member (obj,"url");
     memcpy(pd->__args.push_uri, ret, strlen(ret)+1);
     sprintf(pd->__str, __STREAM_OUT__rtmp(atrack,vtrack), pd->__args.push_uri, pd->pipename, vn, pd->pipename, an);
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"publish %s\n",pd->__str);
+    g_print( "publish %s\n",pd->__str);
 
   }else if(!strcmp(cmd, "stop")){
 
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"stop \n");
+    g_print( "stop \n");
     pd->cmd = STOP;
 
   }else if(!strcmp(cmd, "play")){
 
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"play  \n");
+    g_print( "play  \n");
     pd->cmd = PLAY;
 
   }else if(!strcmp(cmd, "delete")){
 
-    ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0,"delete \n");
+    g_print( "delete \n");
     pd->cmd = DELETE;
     convert_process(pd);
     sprintf(pd->pipename, "channel-id-%d", id);

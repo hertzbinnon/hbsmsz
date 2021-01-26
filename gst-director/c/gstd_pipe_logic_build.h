@@ -36,4 +36,4 @@ typedef struct _PipelineDescribe{
 
 } PipelineDescribe;
 
-gchar* message_process(gchar* msg);
+gchar* message_process(const gchar* msg);

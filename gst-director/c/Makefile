@@ -17,26 +17,23 @@ GST_CONTROLLER_LDFLAGS = $(shell pkg-config --libs gstreamer-controller-1.0)
 GLIB_JSON_CFLAGS = $(shell pkg-config --cflags json-glib-1.0)
 GLIB_JSON_LDFLAGS = $(shell pkg-config --libs json-glib-1.0)
 
-NANO_CFLAGS = $(shell pkg-config --cflags libcsoap)
-NANO_LDFLAGS = $(shell pkg-config --libs libcsoap)
-
 GSTDC_CFLAGS = $(shell pkg-config --cflags gstc-1.0)
 GSTDC_LDFLAGS = $(shell pkg-config --libs  gstc-1.0)
 
 all: hbsmsz #addstream test-effect-switch doc-effect-switch switch-src-element crossfade comp-switch-dynamic interpipe
 
 clean:
-	rm -f VRsmsz *.o addstream test-effect-switch doc-effect-switch switch-src-element crossfade comp-switch-dynamic interpipe 
+	rm -f *.o hbsmsz *~
 
 
 #httpd.o : httpd.c httpd.h
 #	$(CC) -c  httpd.c $(CFLAGS) $(GST_CFLAGS) $(GSOUP_CFLAGS) $(LDFLAGS) $(GST_LDFLAGS)
 
-simple-httpd.o : simple-httpd.c 
-	$(CC) -c  $^ $(CFLAGS) $(GST_CFLAGS) $(NANO_CFLAGS) $(GSOUP_CFLAGS)
+simple-httpd.o : simple-httpd.c gstd_pipe_logic_build.h
+	$(CC) -c  simple-httpd.c $(CFLAGS) $(GST_CFLAGS) $(NANO_CFLAGS) $(GSOUP_CFLAGS)
 
-gstdc.o : gstdc.c 
-	$(CC) -c  $^ $(CFLAGS) $(GST_CFLAGS) $(NANO_CFLAGS) $(GSOUP_CFLAGS) $(GLIB_JSON_CFLAGS)
+gstdc.o : gstdc.c partten.h gstd_pipe_logic_build.h
+	$(CC) -c  gstdc.c $(CFLAGS) $(GST_CFLAGS) $(NANO_CFLAGS) $(GSOUP_CFLAGS) $(GLIB_JSON_CFLAGS)
 
 
 hbsmsz  : simple-httpd.o gstdc.o

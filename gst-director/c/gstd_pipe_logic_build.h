@@ -31,7 +31,7 @@ typedef struct _PipelineDescribe{
 
    gchar pipename[1024];
    enum GSTD_COMMAND  cmd;
-   gchar         __str[2*DES_STR_LENGTH];
+   gchar         __str[8*DES_STR_LENGTH];
    Argment       __args;
 
 } PipelineDescribe;

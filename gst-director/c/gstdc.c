@@ -235,6 +235,7 @@ message_process (const gchar * msg)
 #if 1
   } else if (!strcmp (cmd, "logo")) {
     GstcStatus r;
+    gint iret = -1;
     gint rid = json_object_get_int_member (obj,"render_id");
     r = get_property_value ("preview", "videosrcpreview", "listen-to", vn);
     if (r != GSTC_OK) {
@@ -243,7 +244,6 @@ message_process (const gchar * msg)
     sprintf (pd->pipename, "videorender-%d", rid);
     ret = json_object_get_string_member (obj,"action");
     if(!strcmp(ret, "add")){
-      gint iret = -1;
       if (is_exist (pd->pipename)) {
 	g_print("pipeline: %s is exist\n", pd->pipename);
 	return NULL;
@@ -295,7 +295,31 @@ message_process (const gchar * msg)
       pd->__args.sets[0].s = 1;
 
     }else if(!strcmp(ret, "update")){
+      if (!is_exist (pd->pipename)) {
+	g_print("pipeline: %s is not exist\n", pd->pipename);
+	return NULL;
+      }
       pd->cmd = SET_OPT;
+      sprintf (pd->__args.sets[0].ele_name, "go%d", rid);
+      sprintf (pd->__args.sets[0].property, "%s", "location");
+      JsonArray  *array = json_object_get_array_member(obj, "logo_params");
+      JsonObject *sub_obj = json_array_get_object_element(array, 0);
+      ret =  json_object_get_string_member (sub_obj,"pathname");
+      sprintf (pd->__args.sets[0].property_value, MEDIA_PATH"/%s", ret);
+      pd->__args.sets[0].s = 1;
+      
+      JsonObject *sub_obj1 = json_object_get_object_member (sub_obj,"rect");
+      iret =  json_object_get_int_member (sub_obj1,"left");
+      sprintf (pd->__args.sets[1].ele_name, "go%d", rid);
+      sprintf (pd->__args.sets[1].property, "%s", "offset-x");
+      sprintf (pd->__args.sets[1].property_value, "%d", iret);
+      pd->__args.sets[1].s = 1;
+
+      iret =  json_object_get_int_member (sub_obj1,"top");
+      sprintf (pd->__args.sets[2].ele_name, "go%d", rid);
+      sprintf (pd->__args.sets[2].property, "%s", "offset-y");
+      sprintf (pd->__args.sets[2].property_value, "%d", iret);
+      pd->__args.sets[2].s = 1;
 
     }else if(!strcmp(ret, "delete")){
 

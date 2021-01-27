@@ -229,6 +229,7 @@ message_process (const gchar * msg)
     sprintf (pd->__args.out_uri, "rtmp://192.168.0.134/live/chan-id-%d", id);
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack), pd->__args.out_uri,
         pd->pipename, vn, pd->pipename, an);
+    g_print ("pull-- %s \n", pd->__str);
 
   } else if (!strcmp (cmd, "switch")) {
     int a, v;

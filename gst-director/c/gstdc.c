@@ -2,7 +2,7 @@
 #include <json-glib/json-glib.h>
 #include "libgstc.h"
 #include "partten.h"
-
+#define MEDIA_PATH "/tmp"
 GstClient *__client = NULL;
 
 GstClient *
@@ -120,11 +120,13 @@ set_gstd (GstClient * client, PipelineDescribe * pd)
 {
   GstcStatus ret;
   //GstElement** ele =NULL;
+#if 1
   char **ele = NULL;
   gint len;
 
   ret = gstc_pipeline_list_elements (client, pd->pipename, &ele, &len);
-#if 0
+  if( ret != GSTC_OK)
+    {g_print("list error\n");}
   for (int i = 0; i < len; i++) {
     g_print ("element name %s\n", ele[i]);
   }
@@ -181,7 +183,7 @@ gchar *
 message_process (const gchar * msg)
 {
   GError *error = NULL;
-  const JsonObject *obj = NULL;
+  JsonObject *obj = NULL;
   JsonNode *root = NULL;
   const gchar *ret = NULL, *cmd = NULL;
   PipelineDescribe *pd = NULL;
@@ -230,7 +232,77 @@ message_process (const gchar * msg)
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack), pd->__args.out_uri,
         pd->pipename, vn, pd->pipename, an);
     g_print ("pull-- %s \n", pd->__str);
+#if 1
+  } else if (!strcmp (cmd, "logo")) {
+    GstcStatus r;
+    gint rid = json_object_get_int_member (obj,"render_id");
+    r = get_property_value ("preview", "videosrcpreview", "listen-to", vn);
+    if (r != GSTC_OK) {
+      return NULL;
+    }
+    sprintf (pd->pipename, "videorender-%d", rid);
+    ret = json_object_get_string_member (obj,"action");
+    if(!strcmp(ret, "add")){
+      gint iret = -1;
+      if (is_exist (pd->pipename)) {
+	g_print("pipeline: %s is exist\n", pd->pipename);
+	return NULL;
+      }
+      pd->cmd = CREATE | PLAY | SET_OPT;
+      sprintf (pd->__str, __STREAM_RENDER__videogo(), rid, vn, rid, rid);
+      g_print("logo-- %s\n",pd->__str);
 
+      sprintf (pd->__args.sets[0].ele_name, "go%d", rid);
+      sprintf (pd->__args.sets[0].property, "%s", "location");
+      JsonArray  *array = json_object_get_array_member(obj, "logo_params");
+      JsonObject *sub_obj = json_array_get_object_element(array, 0);
+      ret =  json_object_get_string_member (sub_obj,"pathname");
+      sprintf (pd->__args.sets[0].property_value, MEDIA_PATH"/%s", ret);
+      pd->__args.sets[0].s = 1;
+      
+      JsonObject *sub_obj1 = json_object_get_object_member (sub_obj,"rect");
+      iret =  json_object_get_int_member (sub_obj1,"left");
+      sprintf (pd->__args.sets[1].ele_name, "go%d", rid);
+      sprintf (pd->__args.sets[1].property, "%s", "offset-x");
+      sprintf (pd->__args.sets[1].property_value, "%d", iret);
+      pd->__args.sets[1].s = 1;
+
+      iret =  json_object_get_int_member (sub_obj1,"top");
+      sprintf (pd->__args.sets[2].ele_name, "go%d", rid);
+      sprintf (pd->__args.sets[2].property, "%s", "offset-y");
+      sprintf (pd->__args.sets[2].property_value, "%d", iret);
+      pd->__args.sets[2].s = 1;
+      convert_process (pd);
+
+
+      //ret =  json_object_get_int_member (sub_obj1,"width");
+      //ret =  json_object_get_int_member (sub_obj1,"height");
+      pd->cmd = SET_OPT;
+      memset(pd->__args.sets,0,sizeof(pd->__args.sets));
+      sprintf (pd->pipename, "%s","preview");
+      sprintf (pd->__args.sets[0].ele_name, "%spreview", "videosrc");
+      sprintf (pd->__args.sets[0].property, "%s", "listen-to");
+      sprintf (pd->__args.sets[0].property_value, "videorender%d", rid);
+      pd->__args.sets[0].s = 1;
+      convert_process (pd);
+
+      memset(pd->__args.sets,0,sizeof(pd->__args.sets));
+      //g_print("%d %d %d\n",sizeof(*pd->__args.sets),sizeof(pd->__args.sets),sizeof(OptionSet));
+      sprintf (pd->pipename, "%s", "publish");
+      sprintf (pd->__args.sets[0].ele_name, "%spublish", "videosrc");
+      sprintf (pd->__args.sets[0].property, "%s", "listen-to");
+      sprintf (pd->__args.sets[0].property_value, "videorender%d", rid);
+      pd->__args.sets[0].s = 1;
+
+    }else if(!strcmp(ret, "update")){
+      pd->cmd = SET_OPT;
+
+    }else if(!strcmp(ret, "delete")){
+
+    }else{
+
+    }
+#endif
   } else if (!strcmp (cmd, "switch")) {
     int a, v;
     g_print ("switch \n");
@@ -314,11 +386,13 @@ message_process (const gchar * msg)
     convert_process (pd);
     sprintf (pd->pipename, "channel-id-%d", id);
 
+    
   } else {
 
   }
 
   convert_process (pd);
+  g_object_unref(parser);
   free (pd);
   return NULL;
 }

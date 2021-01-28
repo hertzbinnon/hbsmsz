@@ -126,7 +126,7 @@ set_gstd (GstClient * client, PipelineDescribe * pd)
 
   ret = gstc_pipeline_list_elements (client, pd->pipename, &ele, &len);
   if( ret != GSTC_OK)
-    {g_print("list error\n");}
+    {g_print("list error\n");return;}
   for (int i = 0; i < len; i++) {
     g_print ("element name %s\n", ele[i]);
   }
@@ -328,17 +328,22 @@ message_process (const gchar * msg)
     }
 #endif
   } else if (!strcmp (cmd, "switch")) {
-    int a, v;
+    int a, v, rs=0;
     g_print ("switch \n");
-    pd->cmd = CREATE | PLAY;
     sprintf (pd->pipename, "%s", "preview");
+    if (is_exist(pd->pipename)) {
+	g_print("pipeline: %s is exist\n", pd->pipename);
+	goto set_opt;
+    }
+    pd->cmd = CREATE | PLAY;
+    
     sprintf (pd->__args.prev_uri, "%s", "rtmp://192.168.0.134/live/preview");
     sprintf (vn, "vtrack-id-%d", id);
     sprintf (an, "atrack-id-%d", id);
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack),
         pd->__args.prev_uri, pd->pipename, vn, pd->pipename, an);
     convert_process (pd);
-
+set_opt:
     pd->cmd = SET_OPT;
     ret = json_object_get_string_member (obj, "video_id");
     if (!ret)
@@ -347,7 +352,32 @@ message_process (const gchar * msg)
     if (v != -1) {
       sprintf (pd->__args.sets[0].ele_name, "%spreview", "videosrc");
       sprintf (pd->__args.sets[0].property, "%s", "listen-to");
-      sprintf (pd->__args.sets[0].property_value, "vtrack-id-%s", ret);
+
+      for(int i=0; i<10; i++){
+        gchar p[1024];
+	sprintf(p,"videorender-%d",i);
+        if (is_exist(p)) {
+		rs++;
+	}
+      }
+      if (rs > 0) {
+	gint rid = rs > 1 ? 0 : rs-1;
+        PipelineDescribe *pdt = NULL;
+        pdt = g_malloc0 (sizeof (PipelineDescribe));
+        memset (pdt, 0, sizeof (*pd));
+        pdt->cmd = SET_OPT;
+        sprintf (pdt->pipename, "videorender-%d", rid);
+        sprintf (pdt->__args.sets[0].ele_name, "videorendersrc%d", rid);
+        sprintf (pdt->__args.sets[0].property, "%s", "listen-to");
+        sprintf (pdt->__args.sets[0].property_value, "vtrack-id-%d", v);
+        pdt->__args.sets[0].s = 1;
+        convert_process (pdt);
+        free (pdt);
+
+        sprintf (pd->__args.sets[0].property_value, "videorender%d", rs-1);
+      }else{
+        sprintf (pd->__args.sets[0].property_value, "vtrack-id-%d", v);
+      }
       pd->__args.sets[0].s = 1;
     }
     ret = json_object_get_string_member (obj, "audio_id");
@@ -357,7 +387,7 @@ message_process (const gchar * msg)
     if (a != -1) {
       sprintf (pd->__args.sets[1].ele_name, "%spreview", "audiosrc");
       sprintf (pd->__args.sets[1].property, "%s", "listen-to");
-      sprintf (pd->__args.sets[1].property_value, "atrack-id-%s", ret);
+      sprintf (pd->__args.sets[1].property_value, "atrack-id-%d", a);
       pd->__args.sets[1].s = 1;
     }
 

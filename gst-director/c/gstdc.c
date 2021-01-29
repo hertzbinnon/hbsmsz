@@ -292,6 +292,10 @@ message_process (const gchar * msg)
     return NULL;
 
   id = json_object_get_int_member (obj, "id");
+  if(id <= 0){
+    p_print("Source id must > 0\n");
+    return NULL;
+  }
 
   if (!strcmp (cmd, "pull")) {
     ret = json_object_get_string_member (obj, "url");

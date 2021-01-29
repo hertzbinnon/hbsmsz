@@ -2,6 +2,8 @@
 #include <json-glib/json-glib.h>
 #include "libgstc.h"
 #include "partten.h"
+#include <glib.h>
+#include <glib/gprintf.h>
 #define MEDIA_PATH "/tmp"
 GstClient *__client = NULL;
 
@@ -24,26 +26,58 @@ connect_gstd ()
   return __client;
 }
 
-gint
-is_exist (gchar * pipename)
+gint is_source_null()
 {
   GstcStatus ret;
   GstClient *client = connect_gstd ();
   gchar **pipelist;
   gint len;
+  gint flag =1;
+
   ret = gstc_pipeline_list (client, &pipelist, &len);
   if (ret != GSTC_OK)
-    return 0;
+    return flag;
+
+  for (int i = 0; i < len; i++) {
+      int f = atoi(pipelist[i]);
+      g_print("name = %s(%d)\n",pipelist[i],f);
+      if( f > 0 ){
+         flag = 0;
+	 //break;
+      }
+  }
+  for (int i = 0; i < len; i++) {
+      free(pipelist[i]);
+  }
+  free(pipelist);
+//  gstc_client_free (client);
+  return flag;
+}
+
+gint is_exist (gchar * pipename)
+{
+  GstcStatus ret;
+  GstClient *client = connect_gstd ();
+  gchar **pipelist;
+  gint len;
+  gint flag = 0;
+  ret = gstc_pipeline_list (client, &pipelist, &len);
+  if (ret != GSTC_OK){
+    return flag ;
+  }
 
   for (int i = 0; i < len; i++) {
     if (!strcmp (pipename, pipelist[i])) {
-      g_print ("Pipeline exist!\n");
-      return 1;
+      flag = 1;
     }
   }
 
+  for (int i = 0; i < len; i++) {
+      free(pipelist[i]);
+  }
+  free(pipelist);
 //  gstc_client_free (client);
-  return 0;
+  return flag;
 }
 
 GstcStatus
@@ -129,7 +163,9 @@ set_gstd (GstClient * client, PipelineDescribe * pd)
     {g_print("list error\n");return;}
   for (int i = 0; i < len; i++) {
     g_print ("element name %s\n", ele[i]);
+    free(ele[i]);
   }
+  free(ele);
 #endif
   for (int i = 0; i < 1024; i++) {
     if (pd->__args.sets[i].s == 1) {
@@ -179,6 +215,49 @@ convert_process (PipelineDescribe * pd)
 //  gstc_client_free (client);
 }
 
+gint clear_all()
+{
+  GstcStatus ret;
+  GstClient *client = connect_gstd ();
+  gchar **pipelist;
+  gint len;
+  PipelineDescribe * pd;
+  pd = g_malloc0 (sizeof (PipelineDescribe));
+  memset (pd, 0, sizeof (*pd));
+
+  ret = gstc_pipeline_list (client, &pipelist, &len);
+  if (ret != GSTC_OK)
+    return 1;
+
+  for (int i = 0; i < len; i++) {
+    pd->cmd = DELETE;
+    sprintf (pd->pipename, "%s", pipelist[i]);
+    convert_process (pd);
+  }
+  for (int i = 0; i < len; i++) {
+      free(pipelist[i]);
+  }
+  free(pipelist);
+  free(pd);
+//  gstc_client_free (client);
+  return 0;
+}
+#if 1 //rtmp/rtsp/http to udp 
+void prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
+  gchar out_url[1024];
+  gint new_id = 12340+id;
+  sprintf (out_url,"udp://%s:%d","127.0.0.1",new_id);
+  pd->cmd = CREATE | PLAY;
+  sprintf (pd->pipename, "dummy%d", new_id);
+  if(!strncmp(pro,"rtmp",4)){
+    sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2udp(), pd->__args.src_uri, "127.0.0.1", new_id);
+  }else{
+  }
+  g_print ("prepare -- %s \n", pd->__str);
+  convert_process (pd);
+  memcpy (pd->__args.src_uri, out_url, strlen (out_url));
+}
+#endif
 gchar *
 message_process (const gchar * msg)
 {
@@ -203,36 +282,44 @@ message_process (const gchar * msg)
   }
 
   root = json_parser_get_root (parser);
-  if (!root)
-    g_error ("get root node failed\n");
+  if (!root){
+    g_print ("Get root node failed\n");
+    return NULL;
+  }
   obj = json_node_get_object (root);
   cmd = json_object_get_string_member (obj, "cmd");
   if (!cmd)
     return NULL;
 
   id = json_object_get_int_member (obj, "id");
-  sprintf (pd->pipename, "%d", id);
 
   if (!strcmp (cmd, "pull")) {
-    pd->cmd = CREATE | PLAY;
     ret = json_object_get_string_member (obj, "url");
-    if (!ret)
+    if (!ret){
       return NULL;
+    }
     memcpy (pd->__args.src_uri, ret, strlen (ret) + 1);
+#if 1 //rtmp/rtsp/http to udp 
+    if(strncmp(ret,"udp",3)){
+      prepare_source(pd,id,ret);
+    }     
+#endif
+    pd->cmd = CREATE | PLAY;
+    sprintf (pd->pipename, "%d", id);
     sprintf (vn, "vtrack-id-%d", id);
     sprintf (an, "atrack-id-%d", id);
-    sprintf (pd->__str, __STREAM_IN__ (atrack, vtrack), pd->__args.src_uri, vn,
-        an);
+    sprintf (pd->__str, __STREAM_IN__ (atrack, vtrack), pd->__args.src_uri, vn,an);
 
     g_print ("pull-- %s \n", pd->__str);
-
     convert_process (pd);
+
     sprintf (pd->pipename, "channel-id-%d", id);
     sprintf (pd->__args.out_uri, "rtmp://192.168.0.134/live/chan-id-%d", id);
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack), pd->__args.out_uri,
         pd->pipename, vn, pd->pipename, an);
     g_print ("pull-- %s \n", pd->__str);
-#if 1
+    convert_process (pd);
+#if 1 // logo render
   } else if (!strcmp (cmd, "logo")) {
     GstcStatus r;
     gint iret = -1;
@@ -293,6 +380,7 @@ message_process (const gchar * msg)
       sprintf (pd->__args.sets[0].property, "%s", "listen-to");
       sprintf (pd->__args.sets[0].property_value, "videorender%d", rid);
       pd->__args.sets[0].s = 1;
+      convert_process (pd);
 
     }else if(!strcmp(ret, "update")){
       if (!is_exist (pd->pipename)) {
@@ -320,6 +408,7 @@ message_process (const gchar * msg)
       sprintf (pd->__args.sets[2].property, "%s", "offset-y");
       sprintf (pd->__args.sets[2].property_value, "%d", iret);
       pd->__args.sets[2].s = 1;
+      convert_process (pd);
 
     }else if(!strcmp(ret, "delete")){
 
@@ -401,6 +490,7 @@ set_opt:
       }
       sprintf (pd->pipename, "%s", "publish");
     }
+    convert_process (pd);
 
   } else if (!strcmp (cmd, "publish")) {
     GstcStatus r;
@@ -421,12 +511,14 @@ set_opt:
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack),
         pd->__args.push_uri, pd->pipename, vn, pd->pipename, an);
     g_print ("publish %s\n", pd->__str);
+    convert_process (pd);
 
   } else if (!strcmp (cmd, "publish_stop")) {
 
     g_print ("stop \n");
     pd->cmd = DELETE;
     sprintf (pd->pipename, "%s", "publish");
+    convert_process (pd);
 
   } else if (!strcmp (cmd, "play")) {
 
@@ -434,18 +526,22 @@ set_opt:
     pd->cmd = PLAY;
 
   } else if (!strcmp (cmd, "delete")) {
-
     g_print ("delete \n");
     pd->cmd = DELETE;
+    sprintf (pd->pipename, "%d", id);
     convert_process (pd);
     sprintf (pd->pipename, "channel-id-%d", id);
+    convert_process (pd);
+    sprintf (pd->pipename, "dummy%d", 12340+id);
+    convert_process (pd);
 
-    
+    if(is_source_null()){
+	g_print("Clear!!!\n");
+        clear_all();               
+    }
   } else {
 
   }
-
-  convert_process (pd);
   g_object_unref(parser);
   free (pd);
   return NULL;

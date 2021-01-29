@@ -29,10 +29,11 @@ typedef struct _Argment{
 
 typedef struct _PipelineDescribe{
 
-   gchar pipename[1024];
+   gchar pipename[256];
    enum GSTD_COMMAND  cmd;
    gchar         __str[8*DES_STR_LENGTH];
    Argment       __args;
+   void (*clear)(Argment*);
 
 } PipelineDescribe;
 

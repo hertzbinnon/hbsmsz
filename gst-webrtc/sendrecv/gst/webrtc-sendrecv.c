@@ -384,9 +384,9 @@ start_pipeline (void)
   pipe1 =
       gst_parse_launch ("webrtcbin bundle-policy=max-bundle name=sendrecv "
       STUN_SERVER
-      "videotestsrc is-live=true pattern=ball ! videoconvert ! queue ! "
+      "videotestsrc is-live=true pattern=ball ! video/x-raw, width=1280,height=720 ! videoconvert ! queue ! "
 #if 1
-      "nvh264enc  ! video/x-h264, profile=baseline,framerate=30/1 ! rtph264pay ! queue ! " RTP_CAPS_H264 "102 ! sendrecv. "
+      "nvh264enc  ! video/x-h264, profile=baseline,framerate=60/1 ! tee ! queue ! rtph264pay ! queue ! " RTP_CAPS_H264 "102 ! sendrecv. "
 #else
       "vp8enc deadline=1 ! rtpvp8pay ! queue ! " RTP_CAPS_VP8 "96 ! sendrecv. "
 #endif

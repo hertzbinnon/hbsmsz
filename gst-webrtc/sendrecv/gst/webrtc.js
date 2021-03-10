@@ -293,6 +293,8 @@ function onDataChannel(event) {
 
 function createCall(msg) {
     // Reset connection attempts because we connected successfully
+    let audio;
+    let video;
     connect_attempts = 0;
 
     console.log('Creating RTCPeerConnection');
@@ -308,7 +310,9 @@ function createCall(msg) {
     /* Send our video/audio to the other peer */
     local_stream_promise = getLocalStream().then((stream) => {
         console.log('Adding local stream');
-        peer_connection.addStream(stream);
+	peer_connection.addTransceiver(stream.getAudioTracks()[0], {direction: 'recvonly'});
+	peer_connection.addTransceiver(stream.getVideoTracks()[0], {direction: 'recvonly'});
+        //peer_connection.addStream(stream);
         return stream;
     }).catch(setError);
 

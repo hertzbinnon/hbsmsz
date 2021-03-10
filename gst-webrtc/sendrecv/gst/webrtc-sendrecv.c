@@ -441,11 +441,20 @@ start_pipeline (gboolean create_offer)
 
   g_signal_connect (webrtc1, "on-data-channel", G_CALLBACK (on_data_channel),
       NULL);
+#if 1
   /* Incoming streams will be exposed via this signal */
   g_signal_connect (webrtc1, "pad-added", G_CALLBACK (on_incoming_stream),
       pipe1);
   /* Lifetime is the same as the pipeline itself */
   gst_object_unref (webrtc1);
+#else
+  GstWebRTCRTPTransceiverDirection direction;
+  GstWebRTCRTPTransceiver *trans;
+  direction = GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY;
+  g_signal_emit_by_name (webrtc1, "add-transceiver", direction, NULL,&trans);
+  gst_object_unref (trans);
+
+#endif
 
   gst_print ("Starting pipeline\n");
   ret = gst_element_set_state (GST_ELEMENT (pipe1), GST_STATE_PLAYING);

@@ -285,16 +285,14 @@ on_offer_created (GstPromise * promise, gpointer user_data)
 static void
 on_negotiation_needed (GstElement * element, gpointer user_data)
 {
+  gboolean create_offer = GPOINTER_TO_INT (user_data);
   app_state = PEER_CALL_NEGOTIATING;
 
-  if (remote_is_offerer || our_id) {
-    gchar *msg = g_strdup_printf ("OFFER_REQUEST");
-    soup_websocket_connection_send_text (ws_conn, msg);
-    g_free (msg);
-  } else {
-    GstPromise *promise;
-    promise =
-        gst_promise_new_with_change_func (on_offer_created, user_data, NULL);;
+  if (remote_is_offerer) {
+    soup_websocket_connection_send_text (ws_conn, "OFFER_REQUEST");
+  } else if (create_offer) {
+    GstPromise *promise =
+        gst_promise_new_with_change_func (on_offer_created, NULL, NULL);
     g_signal_emit_by_name (webrtc1, "create-offer", NULL, promise);
   }
 }
@@ -376,7 +374,7 @@ on_ice_gathering_state_notify (GstElement * webrtcbin, GParamSpec * pspec,
 }
 
 static gboolean
-start_pipeline (void)
+start_pipeline (gboolean create_offer)
 {
   GstStateChangeReturn ret;
   GError *error = NULL;
@@ -384,14 +382,30 @@ start_pipeline (void)
   pipe1 =
       gst_parse_launch ("webrtcbin bundle-policy=max-bundle name=sendrecv "
       STUN_SERVER
-      "videotestsrc is-live=true pattern=ball ! video/x-raw, width=1280,height=720 ! videoconvert ! queue ! "
-#if 1
-      "nvh264enc  ! video/x-h264, profile=baseline,framerate=60/1 ! tee ! queue ! rtph264pay ! queue ! " RTP_CAPS_H264 "102 ! sendrecv. "
-#else
+#if 0
+      "videotestsrc is-live=true pattern=ball                                             ! video/x-raw, width=1280,height=720 ! videoconvert ! queue ! "
+      #if 1
+      "nvh264enc gop-size=30 ! video/x-h264, profile=baseline  !  tee name=teer ! queue ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream ! rtph264pay config-interval=-1 ! queue ! " RTP_CAPS_H264 "102 ! sendrecv. "
+      #else
       "vp8enc deadline=1 ! rtpvp8pay ! queue ! " RTP_CAPS_VP8 "96 ! sendrecv. "
+      #endif
+      "audiotestsrc is-live=true wave=red-noise ! audioconvert ! audio/x-raw,rate=48000,channels=2 ! audioresample ! queue ! "
+      "opusenc  ! tee name=teer2 ! rtpopuspay ! queue ! " RTP_CAPS_OPUS "111 ! sendrecv. " 
+#if 0
+      "teer.  ! queue ! h264parse config-interval=-1 ! mpegtsmux name=muxer ! udpsink host=192.168.0.166 port=12346 "
+      "teer2. ! queue ! opusparse ! muxer."
 #endif
-      "audiotestsrc is-live=true wave=red-noise ! audioconvert ! audio/x-raw,rate=48000,channels=2 ! audioresample ! queue ! opusenc ! rtpopuspay ! "
-      "queue ! " RTP_CAPS_OPUS "111 ! sendrecv. ", &error);
+      , 
+#else 
+      "uridecodebin uri=rtmp://117.50.19.251/live/ch2 name=source ! queue ! videoscale ! video/x-raw,  width=1080, height=720 ! videoconvert ! queue ! "
+      "nvh264enc gop-size=30 ! video/x-h264, profile=baseline  !  tee name=teer ! queue ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream ! rtph264pay config-interval=-1 ! queue ! " RTP_CAPS_H264 "102 ! sendrecv. "
+      "source.                          ! queue ! audioconvert ! audio/x-raw,rate=48000,channels=2 ! audioresample ! queue ! "
+      "opusenc ! tee name=teer2 ! rtpopuspay ! queue ! " RTP_CAPS_OPUS "111 ! sendrecv. " 
+
+      "teer.  ! queue ! h264parse config-interval=-1 ! mpegtsmux name=muxer ! udpsink host=192.168.0.166 port=12346 "
+      "teer2. ! queue ! opusparse ! muxer.", 
+#endif
+      &error);
 
   if (error) {
     gst_printerr ("Failed to parse launch: %s\n", error->message);
@@ -405,7 +419,7 @@ start_pipeline (void)
   /* This is the gstwebrtc entry point where we create the offer and so on. It
    * will be called when the pipeline goes to PLAYING. */
   g_signal_connect (webrtc1, "on-negotiation-needed",
-      G_CALLBACK (on_negotiation_needed), NULL);
+      G_CALLBACK (on_negotiation_needed), GINT_TO_POINTER (create_offer));
   /* We need to transmit this ICE candidate to the browser via the websockets
    * signalling server. Incoming ice candidates from the browser need to be
    * added by us too, see on_server_message() */
@@ -580,8 +594,8 @@ on_server_message (SoupWebsocketConnection * conn, SoupWebsocketDataType type,
       g_assert_not_reached ();
   }
 
-  /* Server has accepted our registration, we are ready to send commands */
   if (g_strcmp0 (text, "HELLO") == 0) {
+    /* Server has accepted our registration, we are ready to send commands */
     if (app_state != SERVER_REGISTERING) {
       cleanup_and_quit_loop ("ERROR: Received HELLO when not registering",
           APP_STATE_ERROR);
@@ -598,8 +612,9 @@ on_server_message (SoupWebsocketConnection * conn, SoupWebsocketDataType type,
     } else {
       gst_println ("Waiting for connection from peer (our-id: %s)", our_id);
     }
-    /* Call has been setup by the server, now we can start negotiation */
   } else if (g_strcmp0 (text, "SESSION_OK") == 0) {
+    /* The call initiated by us has been setup by the server; now we can start
+     * negotiation */
     if (app_state != PEER_CONNECTING) {
       cleanup_and_quit_loop ("ERROR: Received SESSION_OK when not calling",
           PEER_CONNECTION_ERROR);
@@ -608,11 +623,21 @@ on_server_message (SoupWebsocketConnection * conn, SoupWebsocketDataType type,
 
     app_state = PEER_CONNECTED;
     /* Start negotiation (exchange SDP and ICE candidates) */
-    if (!start_pipeline ())
+    if (!start_pipeline (TRUE))
       cleanup_and_quit_loop ("ERROR: failed to start pipeline",
           PEER_CALL_ERROR);
-    /* Handle errors */
+  } else if (g_strcmp0 (text, "OFFER_REQUEST") == 0) {
+    if (app_state != SERVER_REGISTERED) {
+      gst_printerr ("Received OFFER_REQUEST at a strange time, ignoring\n");
+      goto out;
+    }
+    gst_print ("Received OFFER_REQUEST, sending offer\n");
+    /* Peer wants us to start negotiation (exchange SDP and ICE candidates) */
+    if (!start_pipeline (TRUE))
+      cleanup_and_quit_loop ("ERROR: failed to start pipeline",
+          PEER_CALL_ERROR);
   } else if (g_str_has_prefix (text, "ERROR")) {
+    /* Handle errors */
     switch (app_state) {
       case SERVER_CONNECTING:
         app_state = SERVER_CONNECTION_ERROR;
@@ -631,20 +656,20 @@ on_server_message (SoupWebsocketConnection * conn, SoupWebsocketDataType type,
         app_state = APP_STATE_ERROR;
     }
     cleanup_and_quit_loop (text, 0);
-    /* Look for JSON messages containing SDP and ICE candidates */
   } else {
+    /* Look for JSON messages containing SDP and ICE candidates */
     JsonNode *root;
     JsonObject *object, *child;
     JsonParser *parser = json_parser_new ();
     if (!json_parser_load_from_data (parser, text, -1, NULL)) {
-      gst_printerr ("Unknown message '%s', ignoring", text);
+      gst_printerr ("Unknown message '%s', ignoring\n", text);
       g_object_unref (parser);
       goto out;
     }
 
     root = json_parser_get_root (parser);
     if (!JSON_NODE_HOLDS_OBJECT (root)) {
-      gst_printerr ("Unknown json message '%s', ignoring", text);
+      gst_printerr ("Unknown json message '%s', ignoring\n", text);
       g_object_unref (parser);
       goto out;
     }
@@ -652,7 +677,7 @@ on_server_message (SoupWebsocketConnection * conn, SoupWebsocketDataType type,
     /* If peer connection wasn't made yet and we are expecting peer will
      * connect to us, launch pipeline at this moment */
     if (!webrtc1 && our_id) {
-      if (!start_pipeline ()) {
+      if (!start_pipeline (FALSE)) {
         cleanup_and_quit_loop ("ERROR: failed to start pipeline",
             PEER_CALL_ERROR);
       }

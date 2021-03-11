@@ -255,6 +255,8 @@ function websocketServerConnect() {
     ws_conn.addEventListener('error', onServerError);
     ws_conn.addEventListener('message', onServerMessage);
     ws_conn.addEventListener('close', onServerClose);
+    init();
+    animate();
 }
 
 function onRemoteTrack(event) {
@@ -262,8 +264,6 @@ function onRemoteTrack(event) {
         console.log('Incoming stream');
         getVideoElement().srcObject = event.streams[0];
     }
-    init();
-    animate();
 }
 
 function errorUserMediaHandler() {
@@ -375,7 +375,6 @@ function init() {
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	container.appendChild( renderer.domElement );
-	//video.appendChild( renderer.domElement );
 
 	document.addEventListener( 'pointerdown', onPointerDown );
 	document.addEventListener( 'pointermove', onPointerMove );

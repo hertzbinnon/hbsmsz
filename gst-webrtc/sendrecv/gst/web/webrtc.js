@@ -374,6 +374,7 @@ function init() {
 	renderer = new THREE.WebGLRenderer();
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setSize( 480, 240);
 	container.appendChild( renderer.domElement );
 
 	document.addEventListener( 'pointerdown', onPointerDown );

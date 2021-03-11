@@ -18,6 +18,26 @@
 
 		<div id="container"></div>
 
+                <script >
+			let state = 0
+			onConnectClicked = function() {
+			    if( state = 0 ){
+				const video = document.getElementById( 'video' );
+				video.play();
+				document.getElementById( 'but' ).innerHTML="Stop";
+				console.log("video start");
+				state = 1;
+			    }else{
+				const video = document.getElementById( 'video' );
+				video.play();
+				document.getElementById( 'but' ).innerHTML="Start";
+				console.log("video stop");
+				state = 0;
+			    }
+			}
+
+		</script>
+                <button id="but" onclick="onConnectClicked();">Connect</button>
 		<video id="video" loop muted crossOrigin="anonymous" playsinline style="display:none">
 			<source src="pano.webm">
 			<source src="pano.mp4">
@@ -25,7 +45,7 @@
 
 		<script type="module">
 
-			import * as THREE from 'three.module.js';
+			import * as THREE from '/three.module.js';
 
 			let camera, scene, renderer;
 
@@ -55,7 +75,7 @@
 				geometry.scale( - 1, 1, 1 );
 
 				const video = document.getElementById( 'video' );
-				video.play();
+				//video.play();
 
 				const texture = new THREE.VideoTexture( video );
 				const material = new THREE.MeshBasicMaterial( { map: texture } );
@@ -138,7 +158,6 @@
 				renderer.render( scene, camera );
 
 			}
-
 		</script>
 	</body>
 </html>

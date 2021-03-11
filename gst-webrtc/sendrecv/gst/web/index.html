@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!--
+  vim: set sts=2 sw=2 et :
+
+
+  Demo Javascript app for negotiating and streaming a sendrecv webrtc stream
+  with a GStreamer app. Runs only in passive mode, i.e., responds to offers
+  with answers, exchanges ICE candidates, and streams.
+
+  Author: Nirbheek Chauhan <nirbheek@centricular.com>
+-->
+<html>
+  <head>
+    <title>three.js+gst-webrtc.js webrtc+webgl - equirectangular video panorama</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="main.css">
+    <style>
+      .error { color: red; }
+      body {
+        touch-action: none;
+      }
+    </style>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script type="module">
+      import * as webrtc from "/webrtc.js"
+      console.log('load js file');
+      window.onload = webrtc.websocketServerConnect;
+    </script>
+  </head>
+
+  <body>
+	<div id="info">
+	   <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - video panorama
+	</div>
+<!--
+    <div><video id="stream" loop muted crossOrigin="anonymous" autoplay  playsinline>Your browser doesn't support video</video></div>
+-->
+    <div><video id="stream" Origin="anonymous" autoplay playsinline>Your browser doesn't support video</video></div>
+    <div>Status: <span id="status">unknown</span></div>
+    <div><textarea id="text" cols=40 rows=4></textarea></div>
+    <br/>
+    <div>
+      <label for="peer-connect">Enter peer id</label>
+      <input id="peer-connect" type="text" name="text">
+      <button onclick="onConnectClicked();">Connect</button>
+    </div>
+
+    <div>Our id is <b id="peer-id">unknown</b></div>
+    <br/>
+    <div>
+      <div>getUserMedia constraints being used:</div>
+      <div><textarea id="constraints" cols=40 rows=4></textarea></div>
+    </div>
+    <br/>
+    <div id="container"></div>
+  </body>
+</html>

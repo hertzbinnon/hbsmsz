@@ -7,6 +7,18 @@
  * Author: Nirbheek Chauhan <nirbheek@centricular.com>
  */
 
+import * as THREE from './three.module.js';
+let camera, scene, renderer;
+
+let isUserInteracting = false,
+    lon = 0, lat = 0,
+    phi = 0, theta = 0,
+    onPointerDownPointerX = 0,
+    onPointerDownPointerY = 0,
+    onPointerDownLon = 0,
+    onPointerDownLat = 0;
+
+const distance = 50;
 // Set this to override the automatic detection in websocketServerConnect()
 var ws_server;
 var ws_port;
@@ -104,7 +116,7 @@ function onLocalDescription(desc) {
     console.log("Got local description: " + JSON.stringify(desc));
     peer_connection.setLocalDescription(desc).then(function() {
         setStatus("Sending SDP " + desc.type);
-        sdp = {'sdp': peer_connection.localDescription}
+        var sdp = {'sdp': peer_connection.localDescription}
         ws_conn.send(JSON.stringify(sdp));
     });
 }
@@ -143,7 +155,7 @@ function onServerMessage(event) {
             else {
                 // Handle incoming JSON SDP and ICE messages
                 try {
-                    msg = JSON.parse(event.data);
+                    var msg = JSON.parse(event.data);
                 } catch (e) {
                     if (e instanceof SyntaxError) {
                         handleIncomingError("Error parsing incoming JSON: " + event.data);
@@ -222,7 +234,7 @@ function websocketServerConnect() {
     if (textarea.value == '')
         textarea.value = JSON.stringify(default_constraints);
     // Fetch the peer id to use
-    peer_id = default_peer_id || getOurId();
+    var peer_id = default_peer_id || getOurId();
     ws_port = ws_port || '9443';
     if (window.location.protocol.startsWith ("file")) {
         ws_server = ws_server || "127.0.0.1";
@@ -250,6 +262,8 @@ function onRemoteTrack(event) {
         console.log('Incoming stream');
         getVideoElement().srcObject = event.streams[0];
     }
+    init();
+    animate();
 }
 
 function errorUserMediaHandler() {
@@ -266,7 +280,7 @@ const handleDataChannelMessageReceived = (event) =>{
     setStatus("Received data channel message");
     if (typeof event.data === 'string' || event.data instanceof String) {
         console.log('Incoming string message: ' + event.data);
-        textarea = document.getElementById("text")
+        var textarea = document.getElementById("text")
         textarea.value = textarea.value + '\n' + event.data
     } else {
         console.log('Incoming data message');
@@ -335,3 +349,102 @@ function createCall(msg) {
 
     return local_stream_promise;
 }
+
+function init() {
+
+	const container = document.getElementById( 'container' );
+
+	camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1100 );
+
+	scene = new THREE.Scene();
+
+	const geometry = new THREE.SphereGeometry( 500, 60, 40 );
+				// invert the geometry on the x-axis so that all of the faces point inward
+	geometry.scale( - 1, 1, 1 );
+
+	const video = document.getElementById( 'stream' );
+        //video.play();
+
+	const texture = new THREE.VideoTexture( video );
+	const material = new THREE.MeshBasicMaterial( { map: texture } );
+
+	const mesh = new THREE.Mesh( geometry, material );
+	scene.add( mesh );
+
+	renderer = new THREE.WebGLRenderer();
+	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	container.appendChild( renderer.domElement );
+	//video.appendChild( renderer.domElement );
+
+	document.addEventListener( 'pointerdown', onPointerDown );
+	document.addEventListener( 'pointermove', onPointerMove );
+	document.addEventListener( 'pointerup', onPointerUp );
+
+				//
+
+	window.addEventListener( 'resize', onWindowResize );
+
+}
+
+function onWindowResize() {
+
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+
+function onPointerDown( event ) {
+
+isUserInteracting = true;
+
+onPointerDownPointerX = event.clientX;
+onPointerDownPointerY = event.clientY;
+
+onPointerDownLon = lon;
+onPointerDownLat = lat;
+
+}
+
+function onPointerMove( event ) {
+
+	if ( isUserInteracting === true ) {
+
+		lon = ( onPointerDownPointerX - event.clientX ) * 0.1 + onPointerDownLon;
+		lat = ( onPointerDownPointerY - event.clientY ) * 0.1 + onPointerDownLat;
+
+	}
+
+}
+
+function onPointerUp() {
+
+	isUserInteracting = false;
+
+}
+
+function animate() {
+
+	requestAnimationFrame( animate );
+	update();
+
+}
+
+function update() {
+
+	lat = Math.max( - 85, Math.min( 85, lat ) );
+	phi = THREE.MathUtils.degToRad( 90 - lat );
+	theta = THREE.MathUtils.degToRad( lon );
+
+	camera.position.x = distance * Math.sin( phi ) * Math.cos( theta );
+	camera.position.y = distance * Math.cos( phi );
+	camera.position.z = distance * Math.sin( phi ) * Math.sin( theta );
+
+	camera.lookAt( 0, 0, 0 );
+
+	renderer.render( scene, camera );
+
+}
+export {websocketServerConnect,onConnectClicked}

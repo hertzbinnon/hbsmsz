@@ -18,7 +18,7 @@ let isUserInteracting = false,
     onPointerDownLon = 0,
     onPointerDownLat = 0;
 
-const distance = 50;
+const distance = 100;
 // Set this to override the automatic detection in websocketServerConnect()
 var ws_server;
 var ws_port;
@@ -201,14 +201,14 @@ function onServerError(event) {
 
 function getLocalStream() {
     var constraints;
-    var textarea = document.getElementById('constraints');
-    try {
-        constraints = JSON.parse(textarea.value);
-    } catch (e) {
-        console.error(e);
-        setError('ERROR parsing constraints: ' + e.message + ', using default constraints');
+    //var textarea = document.getElementById('constraints');
+    //try {
+    //    constraints = JSON.parse(textarea.value);
+    //} catch (e) {
+    //    console.error(e);
+    //    setError('ERROR parsing constraints: ' + e.message + ', using default constraints');
         constraints = default_constraints;
-    }
+    //}
     console.log(JSON.stringify(constraints));
 
     // Add local stream
@@ -230,9 +230,9 @@ function websocketServerConnect() {
     span.classList.remove('error');
     span.textContent = '';
     // Populate constraints
-    var textarea = document.getElementById('constraints');
-    if (textarea.value == '')
-        textarea.value = JSON.stringify(default_constraints);
+    //var textarea = document.getElementById('constraints');
+    //if (textarea.value == '')
+    //    textarea.value = JSON.stringify(default_constraints);
     // Fetch the peer id to use
     var peer_id = default_peer_id || getOurId();
     ws_port = ws_port || '9443';

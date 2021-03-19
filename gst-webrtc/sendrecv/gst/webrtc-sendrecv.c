@@ -313,7 +313,7 @@ data_channel_on_open (GObject * dc, gpointer user_data)
 {
   GBytes *bytes = g_bytes_new ("data", strlen ("data"));
   gst_print ("data channel opened\n");
-  g_signal_emit_by_name (dc, "send-string", "Hi! from GStreamer");
+  g_signal_emit_by_name (dc, "send-string", "Hi! VRSMSZ");
   g_signal_emit_by_name (dc, "send-data", bytes);
   g_bytes_unref (bytes);
 }
@@ -398,8 +398,10 @@ start_pipeline (gboolean create_offer)
       , 
 #else 
 #define LV "rtmp://106.75.37.158/live/lv"
-#define CH2 "rtmp://117.50.19.251/live/ch2"
-      "uridecodebin uri="CH2" name=source ! queue ! videoscale ! video/x-raw,  width=960, height=480 ! videoconvert ! queue ! "
+#define CH2 "rtmp://10.9.91.51/live/1"
+#define CH3 "rtmp://106.75.117.203/live/preview"
+#define CH4 "rtmp://106.75.117.203/live/0"
+      "uridecodebin uri="CH4" name=source ! queue ! videoscale ! video/x-raw,  width=960, height=480 ! videoconvert ! queue ! "
       "nvh264enc gop-size=30 ! video/x-h264, profile=baseline  !  tee name=teer ! queue ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream ! rtph264pay config-interval=-1 ! queue ! " RTP_CAPS_H264 "102 ! sendrecv. "
       "source.                          ! queue ! audioconvert ! audio/x-raw,rate=48000,channels=2 ! audioresample ! queue ! "
       "opusenc ! tee name=teer2 ! rtpopuspay ! queue ! " RTP_CAPS_OPUS "111 ! sendrecv. " 

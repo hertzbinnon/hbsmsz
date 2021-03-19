@@ -1,2 +1,182 @@
 gst-launch-1.0 uridecodebin uri=udp://192.168.0.134:12340 ! video/x-raw'(memory:GLMemory)', format=I420, width=352, height=288  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://192.168.0.134/live/tmp
 GST_DEBUG=gl*:6 ./gst-launch-1.0 uridecodebin uri=rtmp://10.9.126.203/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=3840, height=1920  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://10.9.112.161/live/tmp
+
+GST_DEBUG=gl*:3 GST_PLUGIN_FEATURE_RANK=nvh264dec:259  gst-launch-1.0 uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=3840, height=1920  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://192.168.0.134/live/tmp
+
+ 1105  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 uridecodebin uri=rtmp://106.75.37.158:1935/live/lv  name=src ! tee ! queue ! videoscale ! video/x-raw,width=1080,height=720 ! nvh264enc ! tee ! queue ! h264parse ! mpegtsmux name=muxer ! udpsink host=127.0.0.1 port=12346 src. ! audioconvert ! opusenc ! opusparse !  tee ! queue ! muxer
+
+ 1106  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 uridecodebin uri=rtmp://106.75.37.158:1935/live/lv  name=src ! tee ! queue ! videoscale ! video/x-raw,width=1080,height=720 ! nvh264enc ! tee ! queue ! h264parse ! mpegtsmux name=muxer ! udpsink host=127.0.0.1 port=12346 src. ! audioconvert ! opusenc ! opusparse !  tee ! queue ! muxer.
+
+ 1107  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 uridecodebin uri=rtmp://106.75.37.158:1935/live/lv  name=src ! tee ! queue ! videoscale ! video/x-raw,width=1080,height=720 ! nvh264enc ! tee ! queue ! h264parse config-interval=-1 ! mpegtsmux name=muxer ! udpsink host=127.0.0.1 port=12346 src. ! audioconvert ! opusenc ! opusparse !  tee ! queue ! muxer.
+
+ 1108  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 uridecodebin uri=rtmp://106.75.37.158:1935/live/lv  name=src ! tee ! queue ! videoscale ! video/x-raw,width=1080,height=720 ! nvh264enc ! tee ! queue ! h264parse config-interval=-1 ! mpegtsmux name=muxer ! udpsink host=192.168.0.166 port=12346 src. ! audioconvert ! opusenc ! opusparse !  tee ! queue ! muxer.
+
+ 1218  gst-launch-1.0 -v uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=3840, height=1920  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1219  gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=3840, height=1920  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1220  gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=3840, height=1920  ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1221  gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1222  gst-launch-1.0  videotestsrc ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1223  gst-launch-1.0  videotestsrc ! video/x-raw, format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1224  gst-launch-1.0  videotestsrc -v ! video/x-raw, format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1225  gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1226  GST_DEBUG=gl*:4 gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1227  GST_DEBUG=gl*:5 gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1228  GST_DEBUG=gl*:5 gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! videoconvert ! videoscale ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1229  GST_DEBUG=gl*:5 gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1230  gst-launch-1.0 gltestsrc
+
+ 1231  gst-launch-1.0 gltestsrc | glimagesink
+
+ 1232  gst-launch-1.0 gltestsrc | fakesink
+
+ 1233  gst-launch-1.0 gltestsrc ! glimagesink
+
+ 1234  gst-launch-1.0 gltestsrc ! glupload ! glimagesink
+
+ 1235  gst-launch-1.0 gltestsrc ! glupload ! gloverlay location=/usr/share/pixmaps/faces/sky.jpg ! glimagesink
+
+ 1236  gst-launch-1.0 gltestsrc ! glupload ! gloverlay location=/usr/share/pixmaps/faces/leaf.jpg ! glimagesink
+
+ 1237  gst-launch-1.0 videotestsrc ! glupload ! gloverlay location=/usr/share/pixmaps/faces/leaf.jpg ! glimagesink
+
+ 1238  gst-launch-1.0 videotestsrc ! video/x-raw ! glupload ! gloverlay location=/usr/share/pixmaps/faces/leaf.jpg ! glimagesink
+
+ 1240  GST_DEBUG=gl*:5 gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1241  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 GST_DEBUG=gl*:5 gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1242  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 GST_DEBUG=gl*:3 gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glupload ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert !  gldownload ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1243  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 GST_DEBUG=gl*:3 gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! fakesink
+
+ 1244  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 GST_DEBUG=gl*:3 gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360 ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert  ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1245  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 GST_DEBUG=gl*:3 gst-launch-1.0  uridecodebin uri=rtmp://106.75.37.158/live/lv ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360 ! glcolorconvert ! gloverlay location=/usr/share/pixmaps/faces/bicycle.jpg ! glcolorconvert  ! queue  ! nvh264enc ! h264parse ! queue ! flvmux ! rtmp2sink location=rtmp://127.0.0.1/live/tmp
+
+ 1246  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! fakesink
+
+ 1247  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! glimagesink
+
+ 1248  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glglimagesink
+
+ 1249  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glimagesink
+
+ 1250  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! video/x-raw, format=I420, width=720, height=360  ! glimagesink
+
+ 1251  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glimagesink
+
+ 1252  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! glcolorconvert ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360  ! glimagesink
+
+ 1253  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! ximagesink
+
+ 1254  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert !  ximagesink
+
+ 1255  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360  !  ximagesink
+
+ 1256  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale  !  ximagesink
+
+ 1257  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale  !  glimagesink
+
+ 1258  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360  !  glimagesink
+
+ 1259  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! glvideoscale ! video/x-raw, format=I420, width=720, height=360  !  glimagesink
+
+ 1260  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! glcolorscale ! video/x-raw, format=I420, width=720, height=360  !  glimagesink
+
+ 1261  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360 ! gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  glimagesink
+
+ 1262  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw(memory:GLMemory), format=I420, width=720, height=360 ! gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  glimagesink
+
+ 1263  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360 ! gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  glimagesink
+
+ 1264  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360 ! gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  glimagesink
+
+ 1265  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360 ! glupload !  gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  glimagesink
+
+ 1266  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360 ! glupload !  gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  fakesink
+
+ 1267  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! glupload ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360 ! glupload !  gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  fakesink
+
+ 1268  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! queue ! videoscale ! glupload ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360 ! glupload !  gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  fakesink
+
+ 1269  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! queue ! videoscale ! glupload ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360 ! glupload !  gloverlay location=/usr/share/pixmips/faces/sky.jpg ! fakesink
+
+ 1270  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! queue ! videoscale ! glupload ! video/x-raw'(memory:GLMemory)', format=I420, width=720, height=360 ! glupload ! queue !  gloverlay location=/usr/share/pixmips/faces/sky.jpg ! fakesink
+
+ 1271  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360 ! glupload !  gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  fakesink
+
+ 1272  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360 ! gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  glimagesink
+
+ 1273  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! glcolorscale ! video/x-raw, format=I420, width=720, height=360  !  glimagesink
+
+ 1274  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360  !  glimagesink
+
+ 1275  gst-launch-1.0 -v rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360 ! gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  glimagesink
+
+ 1276  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360 ! glupload !  gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  glimagesink
+
+ 1278  gst-launch-1.0 videotestsrc ! video/x-raw ! glupload ! gloverlay location=/usr/share/pixmaps/faces/sky.jpg ! glimagesink
+
+ 1279  gst-launch-1.0 videotestsrc ! video/x-raw ! glupload ! gloverlay location=/usr/share/pixmaps/faces/sky.jpg overlay-height=100 overlay-width=80 ! glimagesink
+
+ 1280  gst-launch-1.0 videotestsrc ! video/x-raw ! glupload ! gloverlay location=/usr/share/pixmaps/faces/sky.jpg overlay-x=100 overlay-y=80 ! glimagesink
+
+ 1281  gst-launch-1.0 videotestsrc ! video/x-raw ! glupload ! gloverlay location=/usr/share/pixmaps/faces/sky.jpg relative-x=100 relative-y=80 ! glimagesink
+
+ 1283  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 filesrc location=2.flv ! decodebin ! textoverlay text="blabla" ! glupload ! glcolorconvert ! vrcompositor ! glimagesink
+
+ 1286  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 filesrc location=2.flv ! decodebin ! textoverlay text="blabla" ! glupload ! glcolorconvert ! vrcompositor ! glimagesink
+
+ 1287  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 filesrc location=2.flv ! decodebin ! videoconvert ! glupload ! gloverlay overlay-height=352 overlay-width=288 location=/usr/share/pixmaps/faces/cat.jpg ! glcolorconvert ! vrcompositor ! glimagesink
+
+ 1288  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 filesrc location=2.flv ! decodebin ! videoconvert ! glupload ! gloverlay overlay-height=352 overlay-width=288 location=/usr/share/pixmaps/faces/cat.jpg ! glcolorconvert  ! glimagesink
+
+ 1289  GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 filesrc location=2.flv ! decodebin ! videoconvert ! glupload ! gloverlay overlay-height=120 overlay-width=60 location=/usr/share/pixmaps/faces/cat.jpg  ! glcolorconvert  ! glimagesink
+
+ 1290  GST_DEBUG=gl*:5 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 filesrc location=2.flv ! decodebin ! videoconvert ! glupload ! gloverlay overlay-height=120 overlay-width=60 location=/usr/share/pixmaps/faces/cat.jpg  ! glcolorconvert  ! glimagesink
+
+ 1291  GST_DEBUG=gl*:3 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 filesrc location=2.flv ! decodebin ! videoconvert ! glupload ! gloverlay overlay-height=120 overlay-width=60 location=/usr/share/pixmaps/faces/cat.jpg  ! glcolorconvert  ! glimagesink
+
+ 1292  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 filesrc location=2.flv ! decodebin ! videoconvert ! glupload ! gloverlay overlay-height=120 overlay-width=60 location=/usr/share/pixmaps/faces/cat.jpg  ! glcolorconvert  ! glimagesink
+
+ 1293  gst-launch-1.0 videotestsrc ! video/x-raw ! glupload ! gloverlay location=/usr/share/pixmaps/faces/sky.jpg ! glcolorconvert ! glimagesink
+
+ 1299  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 filesrc location=2.flv ! decodebin ! videoconvert ! glupload ! gloverlay overlay-height=120 overlay-width=60 location=/usr/share/pixmaps/faces/cat.jpg  ! glcolorconvert  ! glimagesink
+
+ 1300  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 filesrc location=2.flv ! decodebin ! videoconvert ! glupload ! gloverlay overlay-height=120 overlay-width=60 location=/usr/share/pixmaps/faces/cat.jpg ! glcolorconvert ! glimagesink
+
+ 1304  gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360 ! glupload !  gloverlay location=/usr/share/pixmips/faces/sky.jpg  !  glimagesink
+
+ 1305  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! videoscale ! video/x-raw, format=I420, width=720, height=360 ! glupload !  gloverlay location=/usr/share/pixmips/faces/sky.jpg  ! glcolorconvert  !  glimagesink
+
+ 1306  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! glupload ! video/x-raw, format=I420, width=720, height=360 ! glupload !  gloverlay location=/usr/share/pixmips/faces/sky.jpg  ! glcolorconvert  !  glimagesink
+
+ 1307  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! glupload !   gloverlay location=/usr/share/pixmips/faces/sky.jpg  ! glcolorconvert  !  glimagesink
+
+ 1310  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! glupload !   gloverlay location=./sky.jpg  ! glcolorconvert  !  glimagesink
+
+ 1311  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoscale ! video/x-raw, format=I420, width=720, height=360  ! videoconvert ! glupload !   gloverlay location=./sky.jpg  ! glcolorconvert  !  glimagesink
+
+ 1312  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoscale ! videoconvert ! glupload !   gloverlay location=./sky.jpg  ! glcolorconvert  !  glimagesink
+
+ 1313  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! video/x-raw, format=I420, width=720, height=360 ! videoscale   !  glupload !   gloverlay location=./sky.jpg  ! glcolorconvert  !  glimagesink
+
+ 1314  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! glupload !   gloverlay location=./sky.jpg  ! glcolorconvert  !  glimagesink
+
+ 1315  echo > GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! glupload !   gloverlay location=./sky.jpg  ! glcolorconvert  !  glimagesink > /tmp/t.d
+
+ 1316  GST_DEBUG=gl*:4 GST_PLUGIN_FEATURE_RANK=nvh264dec:259 gst-launch-1.0 rtmp2src location=rtmp://106.75.37.158/live/lv ! flvdemux ! h264parse ! queue ! nvh264dec ! videoconvert ! glupload !   gloverlay location=./sky.jpg  ! glcolorconvert  !  glimagesink
+
+

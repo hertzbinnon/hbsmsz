@@ -1,4 +1,4 @@
-#define __STREAM_IN__(videoname,audioname) "uridecodebin uri=%s name=source ! video/x-raw, framerate=30/1, width=352, height=288, format=Y444_10LE ! queue ! interpipesink name=%s caps=video/x-raw,width=352,height=288,framerate=30/1 sync=false async=false  source. ! queue  ! interpipesink name=%s caps=audio/mpeg sync=false async=false"
+#define __STREAM_IN__(videoname,audioname) "uridecodebin uri=%s name=source ! video/x-raw, framerate=30/1, width=3840, height=1920  ! queue ! interpipesink name=%s caps=video/x-raw,width=3840,height=1920 sync=false async=false  source. ! queue  ! interpipesink name=%s caps=audio/mpeg sync=false async=false"
 
 #define __STREAM_RENDER__audio()
 

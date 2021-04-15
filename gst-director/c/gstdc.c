@@ -255,7 +255,9 @@ void prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
   }
   g_print ("prepare -- %s \n", pd->__str);
   convert_process (pd);
-  memcpy (pd->__args.src_uri, out_url, strlen (out_url));
+  memcpy (pd->__args.src_uri, out_url, strlen (out_url)+1);
+  g_print ("url -- %s \n", out_url);
+  g_print ("url -- %s \n",pd->__args.src_uri );
 }
 #endif
 gchar *
@@ -293,7 +295,7 @@ message_process (const gchar * msg)
 
   id = json_object_get_int_member (obj, "id");
   if(id <= 0){
-    p_print("Source id must > 0\n");
+    g_print("Source id must > 0\n");
     return NULL;
   }
 
@@ -303,11 +305,13 @@ message_process (const gchar * msg)
       return NULL;
     }
     memcpy (pd->__args.src_uri, ret, strlen (ret) + 1);
+    g_print ("url -- %s \n", pd->__args.src_uri);
 #if 1 //rtmp/rtsp/http to udp 
     if(strncmp(ret,"udp",3)){
       prepare_source(pd,id,ret);
     }     
 #endif
+    g_print ("url -- %s \n", pd->__args.src_uri);
     pd->cmd = CREATE | PLAY;
     sprintf (pd->pipename, "%d", id);
     sprintf (vn, "vtrack-id-%d", id);
@@ -318,7 +322,7 @@ message_process (const gchar * msg)
     convert_process (pd);
 
     sprintf (pd->pipename, "channel-id-%d", id);
-    sprintf (pd->__args.out_uri, "rtmp://192.168.0.134/live/chan-id-%d", id);
+    sprintf (pd->__args.out_uri, "rtmp://10.9.119.38/live/chan-id-%d", id);
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack), pd->__args.out_uri,
         pd->pipename, vn, pd->pipename, an);
     g_print ("pull-- %s \n", pd->__str);
@@ -430,7 +434,7 @@ message_process (const gchar * msg)
     }
     pd->cmd = CREATE | PLAY;
     
-    sprintf (pd->__args.prev_uri, "%s", "rtmp://192.168.0.134/live/preview");
+    sprintf (pd->__args.prev_uri, "%s", "rtmp://10.9.119.38/live/preview");
     sprintf (vn, "vtrack-id-%d", id);
     sprintf (an, "atrack-id-%d", id);
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack),

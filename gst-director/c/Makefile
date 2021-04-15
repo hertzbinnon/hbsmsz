@@ -30,10 +30,10 @@ clean:
 #	$(CC) -c  httpd.c $(CFLAGS) $(GST_CFLAGS) $(GSOUP_CFLAGS) $(LDFLAGS) $(GST_LDFLAGS)
 
 simple-httpd.o : simple-httpd.c gstd_pipe_logic_build.h
-	$(CC) -c  simple-httpd.c $(CFLAGS) $(GST_CFLAGS) $(NANO_CFLAGS) $(GSOUP_CFLAGS)
+	$(CC) -c  simple-httpd.c -O2 -g -Wall -I. $(GSTDC_CFLAGS) $(CFLAGS) $(GST_CFLAGS) $(NANO_CFLAGS) $(GSOUP_CFLAGS)
 
 gstdc.o : gstdc.c partten.h gstd_pipe_logic_build.h
-	$(CC) -c  gstdc.c $(CFLAGS) $(GST_CFLAGS) $(NANO_CFLAGS) $(GSOUP_CFLAGS) $(GLIB_JSON_CFLAGS)
+	$(CC) -c  gstdc.c -O2 -g -Wall -I. $(CFLAGS) $(GSTDC_CFLAGS) $(GST_CFLAGS) $(NANO_CFLAGS) $(GSOUP_CFLAGS) $(GLIB_JSON_CFLAGS)
 
 
 hbsmsz  : simple-httpd.o gstdc.o

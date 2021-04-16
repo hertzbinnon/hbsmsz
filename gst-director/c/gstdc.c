@@ -243,14 +243,15 @@ gint clear_all()
   return 0;
 }
 #if 1 //rtmp/rtsp/http to udp 
-void prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
+gint prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
   gchar out_url[1024];
   gint new_id = 12340+id;
   sprintf (out_url,"udp://%s:%d","127.0.0.1",new_id);
   pd->cmd = CREATE | PLAY;
   sprintf (pd->pipename, "dummy%d", new_id);
   if(!strncmp(pro,"rtmp",4)){
-    sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2udp(), pd->__args.src_uri, "127.0.0.1", new_id);
+    //sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2udp(), pd->__args.src_uri, "127.0.0.1", new_id);
+    sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2tcp(), pd->__args.src_uri, "127.0.0.1", new_id);
   }else{
   }
   g_print ("prepare -- %s \n", pd->__str);
@@ -258,6 +259,7 @@ void prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
   memcpy (pd->__args.src_uri, out_url, strlen (out_url)+1);
   g_print ("url -- %s \n", out_url);
   g_print ("url -- %s \n",pd->__args.src_uri );
+  return new_id;
 }
 #endif
 gchar *
@@ -307,8 +309,9 @@ message_process (const gchar * msg)
     memcpy (pd->__args.src_uri, ret, strlen (ret) + 1);
     g_print ("url -- %s \n", pd->__args.src_uri);
 #if 1 //rtmp/rtsp/http to udp 
+    gint port=-1;
     if(strncmp(ret,"udp",3)){
-      prepare_source(pd,id,ret);
+      port = prepare_source(pd,id,ret);
     }     
 #endif
     g_print ("url -- %s \n", pd->__args.src_uri);
@@ -316,7 +319,8 @@ message_process (const gchar * msg)
     sprintf (pd->pipename, "%d", id);
     sprintf (vn, "vtrack-id-%d", id);
     sprintf (an, "atrack-id-%d", id);
-    sprintf (pd->__str, __STREAM_IN__ (atrack, vtrack), pd->__args.src_uri, vn,an);
+    //sprintf (pd->__str, __STREAM_IN__ (atrack, vtrack), pd->__args.src_uri, vn,an);
+    sprintf (pd->__str, __STREAM_IN__TCP (atrack, vtrack), port, vn,an);
 
     g_print ("pull-- %s \n", pd->__str);
     convert_process (pd);
@@ -516,7 +520,7 @@ set_opt:
     if (!ret)
       return NULL;
     memcpy (pd->__args.push_uri, ret, strlen (ret) + 1);
-    sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack),
+    sprintf (pd->__str, __STREAM_OUT__rtmp_pub(atrack, vtrack),
         pd->__args.push_uri, pd->pipename, vn, pd->pipename, an);
     g_print ("publish %s\n", pd->__str);
     convert_process (pd);

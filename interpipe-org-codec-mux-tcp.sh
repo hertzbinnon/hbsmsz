@@ -8,7 +8,7 @@
 
 #gst-launch-1.0 -v rtmp2src location=rtmp://127.0.0.1/live/ch0 timeout=10 ! flvdemux  name=source ! h264parse ! avdec_h264 ! video/x-raw, framerate=30/1, width=352, height=288 ! queue ! interpipesink name=src_1 caps="video/x-raw,width=352,height=288,framerate=30/1" sync=false async=false forward-events=true forward-eos=true  interpipesrc name=interpipesrc1 listen-to=src_1 is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! x264enc ! h264parse ! queue ! mpegtsmux name=muxer alignment=7 ! queue ! udpsink host=192.168.0.166 port=12349 sync=false async=false
 echo -e "\n ====== CCTV Example (Switch the scr_pipe to listen in runtime) ====== \n"
-switch=0.4
+switch=9.4
 
 STOP=0
 export GST_PLUGIN_FEATURE_RANK=nvh264dec:259
@@ -97,7 +97,8 @@ gstd-client pipeline_create pipe_4_sink flvmux name=muxer ! rtmp2sink location=r
 
 gstd-client pipeline_create pipe_5_sink flvmux name=muxer ! rtmp2sink location=rtmp://127.0.0.1/live/ch6 sync=false \
   interpipesrc name=interpipesrc5v listen-to=src_1 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! videoscale ! video/x-raw,width=720,height=360 ! videoconvert ! nvh264enc gop-size=30 ! h264parse ! muxer. \
-  interpipesrc name=interpipesrc5a listen-to=src_11 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! audioconvert ! voaacenc ! aacparse ! queue ! muxer.
+  interpipesrc name=interpipesrc5a listen-to=src_11 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! audioconvert ! volume volume=2 ! rsaudioecho ! audioconvert ! voaacenc ! aacparse ! queue ! muxer.
+#interpipesrc name=interpipesrc5a listen-to=src_11 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! audioconvert ! volume volume=10 ! queue ! audioresample ! rsaudioloudnorm loudness-target=-5 loudness-range-target=20 ! audioresample ! queue ! audioconvert ! voaacenc ! queue ! aacparse ! queue ! muxer.
 # Change pipelines to PLAYING STATE
 echo -e "\n ====> Change to PLAYING STATE \n"
 gstd-client pipeline_play pipe_1_src

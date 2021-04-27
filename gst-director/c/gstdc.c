@@ -326,7 +326,7 @@ message_process (const gchar * msg)
     convert_process (pd);
 
     sprintf (pd->pipename, "channel-id-%d", id);
-    sprintf (pd->__args.out_uri, "rtmp://10.9.119.38/live/chan-id-%d", id);
+    sprintf (pd->__args.out_uri, "rtmp://127.0.0.1/live/chan-id-%d", id);
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack), pd->__args.out_uri,
         pd->pipename, vn, pd->pipename, an);
     g_print ("pull-- %s \n", pd->__str);
@@ -438,7 +438,7 @@ message_process (const gchar * msg)
     }
     pd->cmd = CREATE | PLAY;
     
-    sprintf (pd->__args.prev_uri, "%s", "rtmp://10.9.119.38/live/preview");
+    sprintf (pd->__args.prev_uri, "%s", "rtmp://127.0.0.1/live/preview");
     sprintf (vn, "vtrack-id-%d", id);
     sprintf (an, "atrack-id-%d", id);
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack),

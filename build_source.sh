@@ -15,11 +15,11 @@ done
 #wait
 end=`date "+%s"`
 echo "time: `expr $end - $start`"
-nohup ./ffmpeg -report -re -fflags +genpts -fflags nobuffer -probesize 50 -analyzeduration 100 -stream_loop -1 -i ./0-cat.mp4 -c:v copy -acodec copy -f flv rtmp://127.0.0.1/live/ch0 -f mpegts udp://10.9.119.38:12340 > /dev/null 2>&1 &
-nohup ./ffmpeg -report -re -fflags +genpts -fflags nobuffer -probesize 50 -analyzeduration 100 -stream_loop -1 -i ./1-cat.mp4 -c:v copy -acodec copy -f flv rtmp://127.0.0.1/live/ch1 -f mpegts udp://10.9.119.38:12341 > /dev/null 2>&1 &
-nohup ./ffmpeg -report -re -fflags +genpts -fflags nobuffer -probesize 50 -analyzeduration 100 -stream_loop -1 -i ./2-cat.mp4 -c:v copy -acodec copy -f flv rtmp://127.0.0.1/live/ch2 -f mpegts udp://10.9.119.38:12342 > /dev/null 2>&1 &
-nohup ./ffmpeg -report -re -fflags +genpts -fflags nobuffer -probesize 50 -analyzeduration 100 -stream_loop -1 -i ./3-cat.mp4 -c:v copy -acodec copy -f flv rtmp://127.0.0.1/live/ch3 -f mpegts udp://10.9.119.38:12343 > /dev/null 2>&1 &
-nohup ./ffmpeg -report -re -fflags +genpts -fflags nobuffer -probesize 50 -analyzeduration 100 -stream_loop -1 -i ./4-cat.mp4 -c:v copy -acodec copy -f flv rtmp://127.0.0.1/live/ch4 -f mpegts udp://10.9.119.38:12343 > /dev/null 2>&1 &
+nohup ./ffmpeg -report -re -fflags +genpts -fflags nobuffer -probesize 50 -analyzeduration 100 -stream_loop -1 -i ./0-cat.mp4 -c:v copy -acodec copy -f flv rtmp://127.0.0.1/live/ch0 > /dev/null 2>&1 &
+nohup ./ffmpeg -report -re -fflags +genpts -fflags nobuffer -probesize 50 -analyzeduration 100 -stream_loop -1 -i ./1-cat.mp4 -c:v copy -acodec copy -f flv rtmp://127.0.0.1/live/ch1 > /dev/null 2>&1 &
+nohup ./ffmpeg -report -re -fflags +genpts -fflags nobuffer -probesize 50 -analyzeduration 100 -stream_loop -1 -i ./2-cat.mp4 -c:v copy -acodec copy -f flv rtmp://127.0.0.1/live/ch2 > /dev/null 2>&1 &
+nohup ./ffmpeg -report -re -fflags +genpts -fflags nobuffer -probesize 50 -analyzeduration 100 -stream_loop -1 -i ./3-cat.mp4 -c:v copy -acodec copy -f flv rtmp://127.0.0.1/live/ch3 > /dev/null 2>&1 &
+nohup ./ffmpeg -report -re -fflags +genpts -fflags nobuffer -probesize 50 -analyzeduration 100 -stream_loop -1 -i ./4-cat.mp4 -c:v copy -acodec copy -f flv rtmp://127.0.0.1/live/ch4 > /dev/null 2>&1 &
 
 nohup gst-launch-1.0 rtmp2src location=rtmp://127.0.0.1/live/ch3 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12341 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
 nohup gst-launch-1.0 rtmp2src location=rtmp://127.0.0.1/live/ch2 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12342 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &

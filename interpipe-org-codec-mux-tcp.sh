@@ -8,7 +8,7 @@
 
 #gst-launch-1.0 -v rtmp2src location=rtmp://127.0.0.1/live/ch0 timeout=10 ! flvdemux  name=source ! h264parse ! avdec_h264 ! video/x-raw, framerate=30/1, width=352, height=288 ! queue ! interpipesink name=src_1 caps="video/x-raw,width=352,height=288,framerate=30/1" sync=false async=false forward-events=true forward-eos=true  interpipesrc name=interpipesrc1 listen-to=src_1 is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! x264enc ! h264parse ! queue ! mpegtsmux name=muxer alignment=7 ! queue ! udpsink host=192.168.0.166 port=12349 sync=false async=false
 echo -e "\n ====== CCTV Example (Switch the scr_pipe to listen in runtime) ====== \n"
-switch=0.4
+switch=1.4
 
 STOP=0
 export GST_PLUGIN_FEATURE_RANK=nvh264dec:259

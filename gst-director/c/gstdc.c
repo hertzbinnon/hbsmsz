@@ -245,7 +245,7 @@ gint clear_all()
 gint prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
   gchar out_url[1024];
   gint new_id = 12340+id;
-  sprintf (out_url,"udp://%s:%d","127.0.0.1",new_id);
+  sprintf (out_url,"tcp://%s:%d","127.0.0.1",new_id);
   pd->cmd = CREATE | PLAY;
   sprintf (pd->pipename, "dummy%d", new_id);
   if(!strncmp(pro,"rtmp",4)){
@@ -309,8 +309,10 @@ message_process (const gchar * msg)
     g_print ("url -- %s \n", pd->__args.src_uri);
 #if 1 //rtmp/rtsp/http to udp 
     gint port=-1;
-    if(strncmp(ret,"udp",3)){
+    if(strncmp(ret,"tcp",3)){
       port = prepare_source(pd,id,ret);
+    }else {
+      port = 12340 + (id % 5 ? id % 5 : (id == 10 ? id - 5: id));
     }     
 #endif
     g_print ("url -- %s \n", pd->__args.src_uri);

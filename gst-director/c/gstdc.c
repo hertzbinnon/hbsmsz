@@ -179,8 +179,7 @@ set_gstd (GstClient * client, PipelineDescribe * pd)
       } else {
         g_print ("Unable to set pipeline: \n");
       }
-    } else
-      break;
+    } 
   }
 }
 
@@ -447,8 +446,10 @@ message_process (const gchar * msg)
 set_opt:
     pd->cmd = SET_OPT;
     ret = json_object_get_string_member (obj, "video_id");
-    if (!ret)
+    if (!ret){
+      g_print("video_id is error !!! \n");
       return NULL;
+    }
     v = atoi (ret);
     if (v != -1) {
       sprintf (pd->__args.sets[0].ele_name, "%spreview", "videosrc");
@@ -482,8 +483,10 @@ set_opt:
       pd->__args.sets[0].s = 1;
     }
     ret = json_object_get_string_member (obj, "audio_id");
-    if (!ret)
+    if (!ret){
+      g_print("audio_id is error !!! \n");
       return NULL;
+    }
     a = atoi (ret);
     if (a != -1) {
       sprintf (pd->__args.sets[1].ele_name, "%spreview", "audiosrc");

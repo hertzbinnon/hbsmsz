@@ -92,7 +92,7 @@ echo -e "\n ====> Create the sink_pipe_4 (listener) \n"
 #gstd-client pipeline_create pipe_pub_sink interpipesrc name=interpipesrc1 listen-to=src_1 is-live=true allow-renegotiation=true ! videoconvert ! x264enc ! h264parse ! queue ! flvmux name=muxer ! rtmp2sink location=rtmp://127.0.0.1/live/chan0 sync=false interpipesrc name=interpipesrc11 listen-to=src_11 is-live=true allow-renegotiation=true ! audioconvert ! voaacenc ! aacparse ! queue ! muxer.
 
 gstd-client pipeline_create pipe_pub_sink flvmux name=muxer ! rtmp2sink location=rtmp://127.0.0.1/live/publish sync=false \
-  interpipesrc name=interpipesrcpv listen-to=src_1 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! videoconvert ! nvh264enc gop-size=30 preset=0 bitrate=10000 ! h264parse ! queue ! muxer. \
+  interpipesrc name=interpipesrcpv listen-to=src_1 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! videoconvert ! nvh264enc gop-size=30 preset=0 bitrate=2000 ! h264parse ! queue ! muxer. \
   interpipesrc name=interpipesrcpa listen-to=src_11 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! audioconvert ! voaacenc ! aacparse ! queue ! muxer.
 
 gstd-client pipeline_create pipe_pre_sink flvmux name=muxer ! rtmp2sink location=rtmp://127.0.0.1/live/preview sync=false \
@@ -142,8 +142,8 @@ gstd-client pipeline_play pipe_5_src
 gstd-client pipeline_play pipe_6_src
 gstd-client pipeline_play pipe_7_src
 gstd-client pipeline_play pipe_8_src
-gstd-client pipeline_play pipe_9_src
-gstd-client pipeline_play pipe_10_src
+#gstd-client pipeline_play pipe_9_src
+#gstd-client pipeline_play pipe_10_src
 
 gstd-client pipeline_play pipe_1_sink
 gstd-client pipeline_play pipe_2_sink
@@ -153,8 +153,8 @@ gstd-client pipeline_play pipe_5_sink
 gstd-client pipeline_play pipe_6_sink
 gstd-client pipeline_play pipe_7_sink
 gstd-client pipeline_play pipe_8_sink
-gstd-client pipeline_play pipe_9_sink
-gstd-client pipeline_play pipe_10_sink
+#gstd-client pipeline_play pipe_9_sink
+#gstd-client pipeline_play pipe_10_sink
 gstd-client pipeline_play pipe_pub_sink
 gstd-client pipeline_play pipe_pre_sink
 
@@ -242,29 +242,29 @@ do
 		break
 	fi
 
-	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_9
-	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_99
-	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_9
-	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_99
-	echo -e "\n ====> Change to listening to scr_pipe_9 \n"
-	echo -e "\n ====> Type Ctrl+C to stop the example execution, otherwise it will iterate infinitely!\n"
-	sleep $switch
-	if [ $STOP -ne 0 ]
-	then
-		break
-	fi
+#	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_9
+#	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_99
+#	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_9
+#	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_99
+#	echo -e "\n ====> Change to listening to scr_pipe_9 \n"
+#	echo -e "\n ====> Type Ctrl+C to stop the example execution, otherwise it will iterate infinitely!\n"
+#	sleep $switch
+#	if [ $STOP -ne 0 ]
+#	then
+#		break
+#	fi
 
-	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_10
-	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_1010
-	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_10
-	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_1010
-	echo -e "\n ====> Change to listening to scr_pipe_10 \n"
-	echo -e "\n ====> Type Ctrl+C to stop the example execution, otherwise it will iterate infinitely!\n"
-	sleep $switch
-	if [ $STOP -ne 0 ]
-	then
-		break
-	fi
+#	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_10
+#	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_1010
+#	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_10
+#	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_1010
+#	echo -e "\n ====> Change to listening to scr_pipe_10 \n"
+#	echo -e "\n ====> Type Ctrl+C to stop the example execution, otherwise it will iterate infinitely!\n"
+#	sleep $switch
+#	if [ $STOP -ne 0 ]
+#	then
+#		break
+#	fi
 
 	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_1
 	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_11
@@ -291,8 +291,8 @@ gstd-client pipeline_delete pipe_5_src
 gstd-client pipeline_delete pipe_6_src
 gstd-client pipeline_delete pipe_7_src
 gstd-client pipeline_delete pipe_8_src
-gstd-client pipeline_delete pipe_9_src
-gstd-client pipeline_delete pipe_10_src
+#gstd-client pipeline_delete pipe_9_src
+#gstd-client pipeline_delete pipe_10_src
 
 gstd-client pipeline_delete pipe_1_sink
 gstd-client pipeline_delete pipe_2_sink
@@ -302,8 +302,8 @@ gstd-client pipeline_delete pipe_5_sink
 gstd-client pipeline_delete pipe_6_sink
 gstd-client pipeline_delete pipe_7_sink
 gstd-client pipeline_delete pipe_8_sink
-gstd-client pipeline_delete pipe_9_sink
-gstd-client pipeline_delete pipe_10_sink
+#gstd-client pipeline_delete pipe_9_sink
+#gstd-client pipeline_delete pipe_10_sink
 
 gstd-client pipeline_delete pipe_pub_sink
 gstd-client pipeline_delete pipe_pre_sink

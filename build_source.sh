@@ -29,18 +29,18 @@ nohup gst-launch-1.0 rtmp2src location=rtmp://127.0.0.1/live/ch4 ! flvdemux name
 
 nohup gst-launch-1.0 rtmp2src location=rtmp://127.0.0.1/live/ch0 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! udpsink host=127.0.0.1 port=12340 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
 
-nohup gst-launch-1.0 rtmp2src location=rtmp://10.9.126.203/live/ch0 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12341 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
-nohup gst-launch-1.0 rtmp2src location=rtmp://10.9.126.203/live/ch1 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12342 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
-nohup gst-launch-1.0 rtmp2src location=rtmp://10.9.126.203/live/ch2 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12343 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
-nohup gst-launch-1.0 rtmp2src location=rtmp://10.9.126.203/live/ch3 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12344 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
-nohup gst-launch-1.0 rtmp2src location=rtmp://10.9.126.203/live/ch0 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12345 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
+nohup gst-launch-1.0 rtmp2src location=rtmp://10.9.91.51/live/ch0 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12341 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
+nohup gst-launch-1.0 rtmp2src location=rtmp://10.9.91.51/live/ch1 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12342 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
+nohup gst-launch-1.0 rtmp2src location=rtmp://10.9.91.51/live/ch2 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12343 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
+nohup gst-launch-1.0 rtmp2src location=rtmp://10.9.91.51/live/ch3 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12344 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
+nohup gst-launch-1.0 rtmp2src location=rtmp://10.9.91.51/live/ch4 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12345 demuxer. ! aacparse ! queue ! muxer. > /dev/null 2>&1 &
 
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":1,\"url\":\"rtmp://10.9.126.203/live/ch0\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":2,\"url\":\"rtmp://10.9.126.203/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":3,\"url\":\"rtmp://10.9.126.203/live/ch2\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":4,\"url\":\"rtmp://10.9.126.203/live/ch3\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":5,\"url\":\"rtmp://10.9.126.203/live/ch0\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":6,\"url\":\"rtmp://10.9.126.203/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":1,\"url\":\"rtmp://10.9.91.51/live/ch0\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":2,\"url\":\"rtmp://10.9.91.51/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":3,\"url\":\"rtmp://10.9.91.51/live/ch2\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":4,\"url\":\"rtmp://10.9.91.51/live/ch3\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":5,\"url\":\"rtmp://10.9.91.51/live/ch0\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":6,\"url\":\"rtmp://10.9.91.51/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
 
 wget -S -d --post-data "{\"cmd\":\"switch\",\"id\":1,\"video_id\":\"1\",\"audio_id\":\"1\",\"url\":\"udp://127.0.0.1:12341\"}" http://127.0.0.1:7777/postserver -O -
 wget -S -d --post-data "{\"cmd\":\"publish\",\"id\":1,\"url\":\"rtmp://127.0.0.1:1935/live/publish\"}" http://127.0.0.1:7777/postserver -O -

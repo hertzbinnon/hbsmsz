@@ -10,43 +10,43 @@ trap "STOP=1" SIGINT
 
 # Create pipelines
 echo -e "\n ====> Create the scr_pipe_1 \n"
-gstd-client pipeline_create pipe_1_src  rtmp2src location=rtmp://10.9.126.203/live/ch0 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 1\" \
+gstd-client pipeline_create pipe_1_src  rtmp2src location=rtmp://10.9.91.51/live/ch0 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 1\" \
 ! "video/x-raw, width=3840, height=1920" ! queue ! interpipesink name=src_1 caps=video/x-raw,width=3840,height=1920 sync=false async=false \
                                                                  demuxer.  ! aacparse ! queue ! muxer. \
                                                                  source. ! avdec_aac ! queue ! interpipesink name=src_11 caps=audio/mpeg sync=false async=false
 
 echo -e "\n ====> Create the scr_pipe_2 \n"
-gstd-client pipeline_create pipe_2_src  rtmp2src location=rtmp://10.9.126.203/live/ch1 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 2\" \
+gstd-client pipeline_create pipe_2_src  rtmp2src location=rtmp://10.9.91.51/live/ch1 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 2\" \
 ! "video/x-raw, width=3840, height=1920" ! queue ! interpipesink name=src_2 caps=video/x-raw,width=3840,height=1920 sync=false async=false \
                                                                  demuxer. !  aacparse ! queue ! muxer. \
                                                                  source. ! avdec_aac ! queue ! interpipesink name=src_22 caps=audio/mpeg sync=false async=false
 echo -e "\n ====> Create the scr_pipe_3 \n"
-gstd-client pipeline_create pipe_3_src  rtmp2src location=rtmp://10.9.126.203/live/ch0 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 3\" \
+gstd-client pipeline_create pipe_3_src  rtmp2src location=rtmp://10.9.91.51/live/ch2 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 3\" \
 ! "video/x-raw, width=3840, height=1920" ! queue ! interpipesink name=src_3 caps=video/x-raw,width=3840,height=1920 sync=false async=false \
                                                                  demuxer. !  aacparse ! queue ! muxer. \
                                                                  source. ! avdec_aac ! queue ! interpipesink name=src_33 caps=audio/mpeg sync=false async=false
 echo -e "\n ====> Create the scr_pipe_4 \n"
-gstd-client pipeline_create pipe_4_src  rtmp2src location=rtmp://10.9.126.203/live/ch1 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 4\" \
+gstd-client pipeline_create pipe_4_src  rtmp2src location=rtmp://10.9.91.51/live/ch3 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 4\" \
 ! "video/x-raw, width=3840, height=1920" ! queue ! interpipesink name=src_4 caps=video/x-raw,width=3840,height=1920 sync=false async=false \
                                                                  demuxer. !  aacparse ! queue ! muxer. \
                                                                  source. ! avdec_aac ! queue ! interpipesink name=src_44 caps=audio/mpeg sync=false async=false
 echo -e "\n ====> Create the scr_pipe_5 \n"
-gstd-client pipeline_create pipe_5_src  rtmp2src location=rtmp://10.9.126.203/live/ch0 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 5\" \
+gstd-client pipeline_create pipe_5_src  rtmp2src location=rtmp://10.9.91.51/live/ch4 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 5\" \
 ! "video/x-raw, width=3840, height=1920" ! queue ! interpipesink name=src_5 caps=video/x-raw,width=3840,height=1920 sync=false async=false \
                                                                  demuxer. !  aacparse ! queue ! muxer. \
                                                                  source. ! avdec_aac ! queue ! interpipesink name=src_55 caps=audio/mpeg sync=false async=false
 echo -e "\n ====> Create the scr_pipe_6 \n"
-gstd-client pipeline_create pipe_6_src  rtmp2src location=rtmp://10.9.126.203/live/ch1 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 6\" \
+gstd-client pipeline_create pipe_6_src  rtmp2src location=rtmp://10.9.91.51/live/ch0 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 6\" \
 ! "video/x-raw, width=3840, height=1920" ! queue ! interpipesink name=src_6 caps=video/x-raw,width=3840,height=1920 sync=false async=false \
                                                                  demuxer. !  aacparse ! queue ! muxer. \
                                                                  source. ! avdec_aac ! queue ! interpipesink name=src_66 caps=audio/mpeg sync=false async=false
 echo -e "\n ====> Create the scr_pipe_7 \n"
-gstd-client pipeline_create pipe_7_src  rtmp2src location=rtmp://10.9.126.203/live/ch0 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 7\" \
+gstd-client pipeline_create pipe_7_src  rtmp2src location=rtmp://10.9.91.51/live/ch1 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 7\" \
 ! "video/x-raw, width=3840, height=1920" ! queue ! interpipesink name=src_7 caps=video/x-raw,width=3840,height=1920 sync=false async=false \
                                                                  demuxer. !  aacparse ! queue ! muxer. \
                                                                  source. ! avdec_aac ! queue ! interpipesink name=src_77 caps=audio/mpeg sync=false async=false
 echo -e "\n ====> Create the scr_pipe_8 \n"
-gstd-client pipeline_create pipe_8_src  rtmp2src location=rtmp://10.9.126.203/live/ch1 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 8\" \
+gstd-client pipeline_create pipe_8_src  rtmp2src location=rtmp://10.9.91.51/live/ch2 timeout=10 ! flvdemux name=demuxer ! h264parse config-interval=-1 ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec  ! queue ! clockoverlay text=\"channel 8\" \
 ! "video/x-raw, width=3840, height=1920" ! queue ! interpipesink name=src_8 caps=video/x-raw,width=3840,height=1920 sync=false async=false \
                                                                  demuxer. !  aacparse ! queue ! muxer. \
                                                                  source. ! avdec_aac ! queue ! interpipesink name=src_88 caps=audio/mpeg sync=false async=false

@@ -258,6 +258,7 @@ gint prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
   memcpy (pd->__args.src_uri, out_url, strlen (out_url)+1);
   g_print ("url -- %s \n", out_url);
   g_print ("url -- %s \n",pd->__args.src_uri );
+  sleep(2);
   return new_id;
 }
 #endif
@@ -321,7 +322,7 @@ message_process (const gchar * msg)
     sprintf (vn, "vtrack-id-%d", id);
     sprintf (an, "atrack-id-%d", id);
     //sprintf (pd->__str, __STREAM_IN__ (atrack, vtrack), pd->__args.src_uri, vn,an);
-    sprintf (pd->__str, __STREAM_IN__TCP (atrack, vtrack), port, vn,an);
+    sprintf (pd->__str, __STREAM_IN__TCP (atrack, vtrack), port, id, vn,an);
 
     g_print ("pull-- %s \n", pd->__str);
     convert_process (pd);
@@ -431,6 +432,8 @@ message_process (const gchar * msg)
 #endif
   } else if (!strcmp (cmd, "switch")) {
     int a, v, rs=0;
+    char cur_v[100],cur_a[100];
+    GstcStatus r;
     g_print ("switch \n");
     sprintf (pd->pipename, "%s", "preview");
     if (is_exist(pd->pipename)) {
@@ -445,7 +448,18 @@ message_process (const gchar * msg)
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack),
         pd->__args.prev_uri, pd->pipename, vn, pd->pipename, an);
     convert_process (pd);
+    g_print("switch %s\n", pd->__str);
+    return NULL;
 set_opt:
+    r = get_property_value ("preview", "audiosrcpreview", "listen-to", an);
+    if (r != GSTC_OK) {
+      return NULL;
+    }
+    r = get_property_value ("preview", "videosrcpreview", "listen-to", vn);
+    if (r != GSTC_OK) {
+      return NULL;
+    }
+
     pd->cmd = SET_OPT;
     ret = json_object_get_string_member (obj, "video_id");
     if (!ret){
@@ -454,6 +468,8 @@ set_opt:
     }
     v = atoi (ret);
     if (v != -1) {
+      sprintf (cur_v, "vtrack-id-%d", v);
+      if(strcmp(cur_v,vn)){
       sprintf (pd->__args.sets[0].ele_name, "%spreview", "videosrc");
       sprintf (pd->__args.sets[0].property, "%s", "listen-to");
 
@@ -483,6 +499,7 @@ set_opt:
         sprintf (pd->__args.sets[0].property_value, "vtrack-id-%d", v);
       }
       pd->__args.sets[0].s = 1;
+      }
     }
     ret = json_object_get_string_member (obj, "audio_id");
     if (!ret){
@@ -491,19 +508,26 @@ set_opt:
     }
     a = atoi (ret);
     if (a != -1) {
+      sprintf (cur_a, "atrack-id-%d", a);
+      if(strcmp(cur_a,an)){
       sprintf (pd->__args.sets[1].ele_name, "%spreview", "audiosrc");
       sprintf (pd->__args.sets[1].property, "%s", "listen-to");
       sprintf (pd->__args.sets[1].property_value, "atrack-id-%d", a);
       pd->__args.sets[1].s = 1;
+     }
     }
 
     if (is_exist ("publish")) {
       convert_process (pd);
       if (a != -1) {
+      if(strcmp(cur_a,an)){
         sprintf (pd->__args.sets[1].ele_name, "%spublish", "audiosrc");
       }
+      }
       if (v != -1) {
+      if(strcmp(cur_v,vn)){
         sprintf (pd->__args.sets[0].ele_name, "%spublish", "videosrc");
+      }
       }
       sprintf (pd->pipename, "%s", "publish");
     }

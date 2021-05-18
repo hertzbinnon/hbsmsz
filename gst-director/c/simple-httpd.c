@@ -185,9 +185,15 @@ do_post (SoupServer * server, SoupMessage * msg, const char *path)
 {
   gboolean created = FALSE;
   const gchar *p = msg->request_body->data;
+  gchar *resp = NULL;
 
   if (!strcmp (path, "/postserver")) {
-    message_process (p);
+    resp = message_process (p);
+  }
+  if( resp ){
+    printf("json data --> %s\n", resp);
+    soup_message_body_append (msg->response_body, SOUP_MEMORY_COPY, resp, strlen(resp));
+    free(resp);
   }
   soup_message_set_status (msg, created ? SOUP_STATUS_CREATED : SOUP_STATUS_OK);
 }
@@ -221,7 +227,7 @@ server_callback (SoupServer * server, SoupMessage * msg,
     soup_message_set_status (msg, SOUP_STATUS_NOT_IMPLEMENTED);
 
   g_free (file_path);
-  g_print ("  -> %d %s\n\n", msg->status_code, msg->reason_phrase);
+  //g_print ("  -> %d %s\n\n", msg->status_code, msg->reason_phrase);
 }
 
 static void
@@ -232,7 +238,8 @@ quit (int sig)
 }
 
 static int port;
-static const char *tls_cert_file, *tls_key_file;
+static const char *tls_cert_file, *tls_key_file; 
+char *host;
 
 static GOptionEntry entries[] = {
   {"cert-file", 'c', 0,
@@ -241,6 +248,9 @@ static GOptionEntry entries[] = {
   {"key-file", 'k', 0,
         G_OPTION_ARG_STRING, &tls_key_file,
       "Use FILE as the TLS private key file", "FILE"},
+  {"host", 'l', 0,
+        G_OPTION_ARG_STRING, &host,
+      "Host to listen", "FILE"},
   {"port", 'p', 0,
         G_OPTION_ARG_INT, &port,
       "Port to listen on", NULL},

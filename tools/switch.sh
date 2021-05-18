@@ -1,16 +1,14 @@
 #!/bin/bash
 #!/bin/bash
 
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":1,\"url\":\"rtmp://10.9.91.51/live/ch0\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":2,\"url\":\"rtmp://10.9.91.51/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":3,\"url\":\"rtmp://10.9.91.51/live/ch2\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":4,\"url\":\"rtmp://10.9.91.51/live/ch3\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":5,\"url\":\"rtmp://10.9.91.51/live/ch0\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":6,\"url\":\"rtmp://10.9.91.51/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":7,\"url\":\"rtmp://10.9.91.51/live/ch2\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":8,\"url\":\"rtmp://10.9.91.51/live/ch3\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":9,\"url\":\"rtmp://10.9.91.51/live/ch0\"}" http://127.0.0.1:7777/postserver -O -
-wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":10,\"url\":\"rtmp://10.9.91.51/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":1,\"url\":\"rtmp://10.9.119.38/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":2,\"url\":\"rtmp://10.9.119.38/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":3,\"url\":\"rtmp://10.9.119.38/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":4,\"url\":\"rtmp://10.9.119.38/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":5,\"url\":\"rtmp://10.9.119.38/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":6,\"url\":\"rtmp://10.9.119.38/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":7,\"url\":\"rtmp://10.9.119.38/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"pull\",\"id\":8,\"url\":\"rtmp://10.9.119.38/live/ch1\"}" http://127.0.0.1:7777/postserver -O -
 
 wget -S -d --post-data "{\"cmd\":\"switch\",\"id\":1,\"video_id\":\"1\",\"audio_id\":\"1\",\"url\":\"udp://127.0.0.1:12341\"}" http://127.0.0.1:7777/postserver -O -
 wget -S -d --post-data "{\"cmd\":\"publish\",\"id\":1,\"url\":\"rtmp://127.0.0.1:1935/live/publish\"}" http://127.0.0.1:7777/postserver -O -

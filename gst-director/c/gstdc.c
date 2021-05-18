@@ -6,7 +6,9 @@
 #include <glib/gprintf.h>
 #define MEDIA_PATH "/tmp"
 GstClient *__client = NULL;
+extern char* host;
 
+char* make_response_mesg(const char* cmd, int id, int errorno); 
 GstClient *
 connect_gstd ()
 {
@@ -262,8 +264,7 @@ gint prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
   return new_id;
 }
 #endif
-gchar *
-message_process (const gchar * msg)
+gchar * message_process (const gchar * msg)
 {
   GError *error = NULL;
   JsonObject *obj = NULL;
@@ -271,8 +272,9 @@ message_process (const gchar * msg)
   const gchar *ret = NULL, *cmd = NULL;
   PipelineDescribe *pd = NULL;
   gchar vn[1024], an[1024];
-  int id = -2;
-
+  int id = -2, errorno = 0;
+  char* resp;
+ 
   pd = g_malloc0 (sizeof (PipelineDescribe));
   memset (pd, 0, sizeof (*pd));
 
@@ -282,29 +284,30 @@ message_process (const gchar * msg)
     g_print ("Unable to parse %s", msg);
     g_error_free (error);
     g_object_unref (parser);
-    return NULL;
+    goto error;
   }
 
   root = json_parser_get_root (parser);
   if (!root){
     g_print ("Get root node failed\n");
-    return NULL;
+    goto error;
   }
   obj = json_node_get_object (root);
   cmd = json_object_get_string_member (obj, "cmd");
   if (!cmd)
-    return NULL;
+    goto error;
+  g_print("sent %s cmd \n", cmd);
 
   id = json_object_get_int_member (obj, "id");
   if(id <= 0){
     g_print("Source id must > 0\n");
-    return NULL;
+    goto error;
   }
 
   if (!strcmp (cmd, "pull")) {
     ret = json_object_get_string_member (obj, "url");
     if (!ret){
-      return NULL;
+      goto error;
     }
     memcpy (pd->__args.src_uri, ret, strlen (ret) + 1);
     g_print ("url -- %s \n", pd->__args.src_uri);
@@ -340,14 +343,14 @@ message_process (const gchar * msg)
     gint rid = json_object_get_int_member (obj,"render_id");
     r = get_property_value ("preview", "videosrcpreview", "listen-to", vn);
     if (r != GSTC_OK) {
-      return NULL;
+      goto error;
     }
     sprintf (pd->pipename, "videorender-%d", rid);
     ret = json_object_get_string_member (obj,"action");
     if(!strcmp(ret, "add")){
       if (is_exist (pd->pipename)) {
 	g_print("pipeline: %s is exist\n", pd->pipename);
-	return NULL;
+        goto error;
       }
       pd->cmd = CREATE | PLAY | SET_OPT;
       sprintf (pd->__str, __STREAM_RENDER__videogo(), rid, vn, rid, rid);
@@ -399,7 +402,7 @@ message_process (const gchar * msg)
     }else if(!strcmp(ret, "update")){
       if (!is_exist (pd->pipename)) {
 	g_print("pipeline: %s is not exist\n", pd->pipename);
-	return NULL;
+        goto error;
       }
       pd->cmd = SET_OPT;
       sprintf (pd->__args.sets[0].ele_name, "go%d", rid);
@@ -453,18 +456,18 @@ message_process (const gchar * msg)
 set_opt:
     r = get_property_value ("preview", "audiosrcpreview", "listen-to", an);
     if (r != GSTC_OK) {
-      return NULL;
+        goto error;
     }
     r = get_property_value ("preview", "videosrcpreview", "listen-to", vn);
     if (r != GSTC_OK) {
-      return NULL;
+        goto error;
     }
 
     pd->cmd = SET_OPT;
     ret = json_object_get_string_member (obj, "video_id");
     if (!ret){
       g_print("video_id is error !!! \n");
-      return NULL;
+        goto error;
     }
     v = atoi (ret);
     if (v != -1) {
@@ -504,7 +507,7 @@ set_opt:
     ret = json_object_get_string_member (obj, "audio_id");
     if (!ret){
       g_print("audio_id is error !!! \n");
-      return NULL;
+        goto error;
     }
     a = atoi (ret);
     if (a != -1) {
@@ -537,21 +540,40 @@ set_opt:
     GstcStatus r;
     r = get_property_value ("preview", "audiosrcpreview", "listen-to", an);
     if (r != GSTC_OK) {
-      return NULL;
+        goto error;
     }
     r = get_property_value ("preview", "videosrcpreview", "listen-to", vn);
     if (r != GSTC_OK) {
-      return NULL;
+        goto error;
     }
     pd->cmd = CREATE | PLAY;
     sprintf (pd->pipename, "%s", "publish");
     ret = json_object_get_string_member (obj, "url");
     if (!ret)
-      return NULL;
+        goto error;
     memcpy (pd->__args.push_uri, ret, strlen (ret) + 1);
     sprintf (pd->__str, __STREAM_OUT__rtmp_pub(atrack, vtrack),
         pd->__args.push_uri, pd->pipename, vn, pd->pipename, an);
     g_print ("publish %s\n", pd->__str);
+    convert_process (pd);
+
+  } else if (!strcmp (cmd, "delay")) {
+
+  } else if (!strcmp (cmd, "volume")) {
+    ret = json_object_get_string_member (obj,"audio_id");
+    gint audio_id = atoi(ret);
+    int r = json_object_get_int_member (obj,"val");
+    double val =  r/100.0;
+    g_print("set audio vol to %d %f \n",r,val);
+    //if( val > 1.0)
+    //  val = 1.0;
+
+    pd->cmd = SET_OPT;
+    sprintf (pd->pipename, "%d", id);
+    sprintf (pd->__args.sets[0].ele_name, "%s", "volume");
+    sprintf (pd->__args.sets[0].property, "%s", "volume");
+    sprintf (pd->__args.sets[0].property_value, "%f", val);
+    pd->__args.sets[0].s = 1;
     convert_process (pd);
 
   } else if (!strcmp (cmd, "publish_stop")) {
@@ -566,6 +588,10 @@ set_opt:
     g_print ("play  \n");
     pd->cmd = PLAY;
 
+  } else if (!strcmp (cmd, "stop_all")) {
+        clear_all();               
+  } else if (!strcmp (cmd, "refresh")) {
+        // nothing to do
   } else if (!strcmp (cmd, "delete")) {
     g_print ("delete \n");
     pd->cmd = DELETE;
@@ -583,7 +609,51 @@ set_opt:
   } else {
 
   }
+error:
+  resp = make_response_mesg(cmd, id, errorno);
   g_object_unref(parser);
   free (pd);
-  return NULL;
+  return resp;
+}
+
+char* make_response_mesg(const gchar* cmd, int id, int errorno){ 
+  JsonBuilder *builder = json_builder_new();
+  json_builder_begin_object(builder);
+  g_print("sent %s cmd \n", cmd);
+
+  json_builder_set_member_name(builder, "cmd");
+  json_builder_add_string_value(builder, cmd);
+
+  json_builder_set_member_name(builder, "id");
+  json_builder_add_int_value(builder, id);
+
+  if(!strcmp(cmd, "pull") || !strcmp(cmd,"delete")){
+    char stream_id[1024];
+    char url[1024];
+    sprintf(stream_id,"%d",id);
+    sprintf(url, "rtmp://%s/live/chan-id-%d",host,id); 
+    json_builder_set_member_name(builder, "stream_id");
+    json_builder_add_string_value(builder, stream_id);
+
+    json_builder_set_member_name(builder, "url");
+    json_builder_add_string_value(builder,url);
+  }
+
+  json_builder_set_member_name(builder, "result");
+  json_builder_add_string_value(builder, errorno ? "ERROR" :"OK");
+
+  json_builder_set_member_name(builder, "errno");
+  json_builder_add_int_value(builder, errorno);
+
+  json_builder_end_object(builder);
+
+  JsonNode *node = json_builder_get_root(builder);
+  JsonGenerator *generator = json_generator_new();
+  json_generator_set_root(generator, node);
+  gchar *data = json_generator_to_data(generator, NULL);
+
+  json_node_free(node);
+  g_object_unref(generator);
+  g_object_unref(builder);
+  return data;
 }

@@ -3,9 +3,9 @@
 
 #define __STREAM_TRANSMUXER_rtmp2udp() "rtmp2src location=%s ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! queue min-threshold-time=0 max-size-buffers=0 max-size-bytes=0 max-size-time=0 ! mpegtsmux name=muxer alignment=7 ! queue min-threshold-time=0 max-size-buffers=0 max-size-bytes=0 max-size-time=0 ! udpsink host=%s port=%d demuxer. ! aacparse ! queue min-threshold-time=0 max-size-buffers=0 max-size-bytes=0 max-size-time=0 ! muxer."
 /////////////////////////////////////////////////
-#define __STREAM_TRANSMUXER_rtmp2tcp() "rtmp2src location=%s ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal ! queue ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=%s port=%d demuxer. ! aacparse ! queue ! muxer."
+#define __STREAM_TRANSMUXER_rtmp2tcp() "rtmp2src location=%s ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal ! queue ! mpegtsmux name=muxer alignment=7 ! queue  name=delayer min-threshold-time=%lld max-size-buffers=0 max-size-bytes=0 max-size-time=30000000000 ! tcpserversink host=%s port=%d demuxer. ! aacparse ! queue ! muxer."
 
-#define __STREAM_IN__TCP(videoname,audioname) "tcpclientsrc host=127.0.0.1 port=%d ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec !  queue ! clockoverlay text=\"channel %d\" ! video/x-raw, width=3840, height=1920 ! queue ! interpipesink name=%s caps=video/x-raw,width=3840,height=1920 sync=false async=false source. ! queue ! avdec_aac ! audioconvert ! volume name=volume volume=10 ! rsaudioecho ! audioconvert ! queue ! interpipesink name=%s caps=audio/mpeg sync=false async=false"
+#define __STREAM_IN__TCP(videoname,audioname) "tcpclientsrc host=127.0.0.1 port=%d ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec !  queue ! clockoverlay text=\"channel %d\" ! video/x-raw, width=3840, height=1920 ! queue ! interpipesink name=%s caps=video/x-raw,width=3840,height=1920 sync=false async=false source. ! queue ! avdec_aac ! audioconvert ! volume name=volume volume=1 ! rsaudioecho ! audioconvert ! queue ! interpipesink name=%s caps=audio/mpeg sync=false async=false"
 
 #define __STREAM_RENDER__audio()
 

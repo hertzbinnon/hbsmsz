@@ -72,6 +72,7 @@ gint is_exist (gchar * pipename)
     if (!strcmp (pipename, pipelist[i])) {
       flag = 1;
     }
+    g_print("--> %s\n",pipelist[i]);
   }
 
   for (int i = 0; i < len; i++) {
@@ -252,7 +253,7 @@ gint prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
   sprintf (pd->pipename, "dummy%d", new_id);
   if(!strncmp(pro,"rtmp",4)){
     //sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2udp(), pd->__args.src_uri, "127.0.0.1", new_id);
-    sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2tcp(), pd->__args.src_uri, "127.0.0.1", new_id);
+    sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2tcp(), pd->__args.src_uri, (long long)0, "127.0.0.1", new_id);
   }else{
   }
   g_print ("prepare -- %s \n", pd->__str);
@@ -558,10 +559,33 @@ set_opt:
     convert_process (pd);
 
   } else if (!strcmp (cmd, "delay")) {
+    gint msecs = json_object_get_int_member (obj,"time");
+    gchar vn[1024], an[1024];
 
+    pd->cmd = DELETE;
+    sprintf (pd->pipename, "dummy%d", 12340+id);
+    convert_process (pd);
+
+    sprintf (pd->pipename, "%d", id);
+    convert_process (pd);
+
+    pd->cmd = CREATE | PLAY;
+    sprintf (pd->pipename, "dummy%d", 12340+id);
+    sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2tcp(), "rtmp://127.0.0.1/live/ch0" ,(long long)msecs*1000000, "127.0.0.1", 12340+id);
+    g_print("set %s to %s \n",pd->pipename,pd->__str);
+    convert_process (pd);
+
+    sprintf (pd->pipename, "%d", id);
+    sprintf (vn, "vtrack-id-%d", id);
+    sprintf (an, "atrack-id-%d", id);
+    sprintf (pd->__str, __STREAM_IN__TCP (atrack, vtrack), 12340+id, id, vn,an);
+    g_print("set %s to %s \n",pd->pipename,pd->__str);
+    convert_process (pd);
+
+	  is_exist("test-->");
   } else if (!strcmp (cmd, "volume")) {
     ret = json_object_get_string_member (obj,"audio_id");
-    gint audio_id = atoi(ret);
+    //gint audio_id = atoi(ret);
     int r = json_object_get_int_member (obj,"val");
     double val =  r/100.0;
     g_print("set audio vol to %d %f \n",r,val);

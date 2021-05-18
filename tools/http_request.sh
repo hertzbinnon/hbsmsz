@@ -42,6 +42,7 @@ wget -S -d --post-data "{\"cmd\":\"switch\",\"id\":1,\"video_id\":\"1\",\"audio_
 wget -S -d --post-data "{\"cmd\":\"switch\",\"id\":2,\"video_id\":\"2\",\"audio_id\":\"2\",\"url\":\"udp://127.0.0.1:12341\"}" http://127.0.0.1:7777/postserver -O -
 wget -S -d --post-data "{\"cmd\":\"switch\",\"id\":1,\"video_id\":\"1\",\"audio_id\":\"1\",\"url\":\"udp://127.0.0.1:12341\"}" http://127.0.0.1:7777/postserver -O -
 wget -S -d --post-data "{\"cmd\":\"volume\",\"id\":1,\"val\":0.2,\"audio_id\":\"2\"}" http://127.0.0.1:7777/postserver -O -
+wget -S -d --post-data "{\"cmd\":\"delay\",\"id\":2,\"stream_id\":\"0\",\"type\":\"all\",\"time\":3000}" http://127.0.0.1:7777/postserver -O -
 
 
 

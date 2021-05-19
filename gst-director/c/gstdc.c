@@ -10,8 +10,8 @@ extern char* host;
 extern int mode;
 
 char* make_response_mesg(const char* , int , int , int, gchar*, int ); 
-GstClient *
-connect_gstd ()
+
+GstClient * connect_gstd ()
 {
   //GstClient *client;
   GstcStatus ret;
@@ -273,7 +273,7 @@ gchar * message_process (const gchar * msg)
   JsonNode *root = NULL;
   const gchar *ret = NULL, *cmd = NULL;
   PipelineDescribe *pd = NULL;
-  gchar vn[1024], an[1024],ourl[1024];
+  gchar vn[1024], an[1024], rn[1024],ourl[1024];
   int id = -2, errorno = 0,aid = -1 ,vid = -1;
   char* resp;
  
@@ -345,6 +345,10 @@ gchar * message_process (const gchar * msg)
     GstcStatus r;
     gint iret = -1;
     gint rid = json_object_get_int_member (obj,"render_id");
+    if(rid == -1) {
+      g_print("Only one Render \n");
+      rid = 0;
+    }
     r = get_property_value ("preview", "videosrcpreview", "listen-to", vn);
     if (r != GSTC_OK) {
       goto error;
@@ -432,8 +436,34 @@ gchar * message_process (const gchar * msg)
       convert_process (pd);
 
     }else if(!strcmp(ret, "delete")){
+      gchar name[1024];
 
+      sprintf (pd->pipename, "videorender-%d", rid);
+      sprintf (name, "videorendersrc%d", rid);
+      r = get_property_value (pd->pipename,  name, "listen-to", rn);
+      if (r != GSTC_OK) {
+        goto error;
+      }
+      g_print("render listen to %s\n",rn);
+      pd->cmd = DELETE;
+      convert_process (pd);
+
+      pd->cmd = SET_OPT;
+      sprintf (pd->pipename, "%s","preview");
+      sprintf (pd->__args.sets[0].ele_name, "%spreview", "videosrc");
+      sprintf (pd->__args.sets[0].property, "%s", "listen-to");
+      sprintf (pd->__args.sets[0].property_value, "%s", rn);
+      pd->__args.sets[0].s = 1;
+      convert_process (pd);
+
+      sprintf (pd->pipename, "%s", "publish");
+      sprintf (pd->__args.sets[0].ele_name, "%spublish", "videosrc");
+      sprintf (pd->__args.sets[0].property, "%s", "listen-to");
+      sprintf (pd->__args.sets[0].property_value, "%s", rn);
+      pd->__args.sets[0].s = 1;
+      convert_process (pd);
     }else{
+	g_print("No implement action %s\n", ret);
 
     }
 #endif
@@ -487,6 +517,7 @@ set_opt:
         if (is_exist(p)) {
 		rs++;
 	}
+	g_print("No render???\n");
       }
       if (rs > 0) {
 	gint rid = rs > 1 ? 0 : rs-1;
@@ -517,7 +548,7 @@ set_opt:
     a = atoi (ret);
     if (a != -1) {
       sprintf (cur_a, "atrack-id-%d", a);
-      aid = -1;
+      aid = a;
       if(strcmp(cur_a,an)){
       sprintf (pd->__args.sets[1].ele_name, "%spreview", "audiosrc");
       sprintf (pd->__args.sets[1].property, "%s", "listen-to");
@@ -588,7 +619,7 @@ set_opt:
     g_print("set %s to %s \n",pd->pipename,pd->__str);
     convert_process (pd);
 
-	  is_exist("test-->");
+	 // is_exist("test-->");
   } else if (!strcmp (cmd, "volume")) {
     ret = json_object_get_string_member (obj,"audio_id");
     //gint audio_id = atoi(ret);

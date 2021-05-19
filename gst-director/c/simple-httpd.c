@@ -240,6 +240,7 @@ quit (int sig)
 static int port;
 static const char *tls_cert_file, *tls_key_file; 
 char *host;
+int mode;
 
 static GOptionEntry entries[] = {
   {"cert-file", 'c', 0,
@@ -254,6 +255,9 @@ static GOptionEntry entries[] = {
   {"port", 'p', 0,
         G_OPTION_ARG_INT, &port,
       "Port to listen on", NULL},
+  {"port", 'm', 0,
+        G_OPTION_ARG_INT, &mode,
+      "Mode to director(8K,4K,FHD ??", NULL},
   {NULL}
 };
 

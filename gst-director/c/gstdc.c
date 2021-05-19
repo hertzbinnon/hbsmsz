@@ -7,8 +7,9 @@
 #define MEDIA_PATH "/tmp"
 GstClient *__client = NULL;
 extern char* host;
+extern int mode;
 
-char* make_response_mesg(const char* cmd, int id, int errorno); 
+char* make_response_mesg(const char* , int , int , int, gchar*, int ); 
 GstClient *
 connect_gstd ()
 {
@@ -272,8 +273,8 @@ gchar * message_process (const gchar * msg)
   JsonNode *root = NULL;
   const gchar *ret = NULL, *cmd = NULL;
   PipelineDescribe *pd = NULL;
-  gchar vn[1024], an[1024];
-  int id = -2, errorno = 0;
+  gchar vn[1024], an[1024],ourl[1024];
+  int id = -2, errorno = 0,aid = -1 ,vid = -1;
   char* resp;
  
   pd = g_malloc0 (sizeof (PipelineDescribe));
@@ -301,8 +302,10 @@ gchar * message_process (const gchar * msg)
 
   id = json_object_get_int_member (obj, "id");
   if(id <= 0){
-    g_print("Source id must > 0\n");
+    g_print("Source id must be > 0\n");
+#if 0 // important !!!!
     goto error;
+#endif
   }
 
   if (!strcmp (cmd, "pull")) {
@@ -453,7 +456,7 @@ gchar * message_process (const gchar * msg)
         pd->__args.prev_uri, pd->pipename, vn, pd->pipename, an);
     convert_process (pd);
     g_print("switch %s\n", pd->__str);
-    return NULL;
+    goto error;
 set_opt:
     r = get_property_value ("preview", "audiosrcpreview", "listen-to", an);
     if (r != GSTC_OK) {
@@ -473,6 +476,7 @@ set_opt:
     v = atoi (ret);
     if (v != -1) {
       sprintf (cur_v, "vtrack-id-%d", v);
+      vid = v;
       if(strcmp(cur_v,vn)){
       sprintf (pd->__args.sets[0].ele_name, "%spreview", "videosrc");
       sprintf (pd->__args.sets[0].property, "%s", "listen-to");
@@ -513,6 +517,7 @@ set_opt:
     a = atoi (ret);
     if (a != -1) {
       sprintf (cur_a, "atrack-id-%d", a);
+      aid = -1;
       if(strcmp(cur_a,an)){
       sprintf (pd->__args.sets[1].ele_name, "%spreview", "audiosrc");
       sprintf (pd->__args.sets[1].property, "%s", "listen-to");
@@ -557,6 +562,7 @@ set_opt:
         pd->__args.push_uri, pd->pipename, vn, pd->pipename, an);
     g_print ("publish %s\n", pd->__str);
     convert_process (pd);
+    sprintf(ourl,"%s",pd->__args.push_uri);
 
   } else if (!strcmp (cmd, "delay")) {
     gint msecs = json_object_get_int_member (obj,"time");
@@ -634,16 +640,17 @@ set_opt:
 
   }
 error:
-  resp = make_response_mesg(cmd, id, errorno);
+  resp = make_response_mesg(cmd, id, vid, aid, ourl, errorno);
   g_object_unref(parser);
   free (pd);
   return resp;
 }
 
-char* make_response_mesg(const gchar* cmd, int id, int errorno){ 
+char* make_response_mesg(const gchar* cmd, int id, int video, int audio, gchar* ourl, int errorno){ 
   JsonBuilder *builder = json_builder_new();
   json_builder_begin_object(builder);
-  g_print("sent %s cmd \n", cmd);
+  gchar url[1024];
+  g_print("build %s cmd \n", cmd);
 
   json_builder_set_member_name(builder, "cmd");
   json_builder_add_string_value(builder, cmd);
@@ -652,8 +659,9 @@ char* make_response_mesg(const gchar* cmd, int id, int errorno){
   json_builder_add_int_value(builder, id);
 
   if(!strcmp(cmd, "pull") || !strcmp(cmd,"delete")){
-    char stream_id[1024];
-    char url[1024];
+    gchar stream_id[1024];
+    gint x=0,y=0;
+
     sprintf(stream_id,"%d",id);
     sprintf(url, "rtmp://%s/live/chan-id-%d",host,id); 
     json_builder_set_member_name(builder, "stream_id");
@@ -661,8 +669,47 @@ char* make_response_mesg(const gchar* cmd, int id, int errorno){
 
     json_builder_set_member_name(builder, "url");
     json_builder_add_string_value(builder,url);
-  }
+    if(!strcmp(cmd, "pull")){
+      json_builder_set_member_name(builder, "encoder_params");
+      json_builder_begin_object(builder);
+      json_builder_set_member_name(builder, "bitrate");
+      json_builder_add_int_value(builder, 1000000);
+       if(mode == 4 ){
+	     x=3840,y=1920;
+       }else if(mode == 8 ){
+	     x=7680,y=3840;
+       }else{
+	     x=3840,y=1920;
+       }
+       json_builder_set_member_name(builder, "width");
+       json_builder_add_int_value(builder, x);
 
+       json_builder_set_member_name(builder, "height");
+       json_builder_add_int_value(builder, y);
+
+       json_builder_set_member_name(builder, "fps");
+       json_builder_add_int_value(builder, 30);
+
+       json_builder_end_object(builder);
+    }
+  }
+  if(!strcmp(cmd, "switch") ){
+    gchar vn[1024], an[1024];
+    json_builder_set_member_name(builder, "url");
+    sprintf(url, "rtmp://%s/live/preview", host); 
+    json_builder_add_string_value(builder,url);
+    sprintf(vn, "%d", video);
+    sprintf(an, "%d", audio);
+    json_builder_set_member_name(builder, "video_id");
+    json_builder_add_string_value(builder, vn);
+    json_builder_set_member_name(builder, "audio_id");
+    json_builder_add_string_value(builder, an);
+  }
+  if(!strcmp(cmd, "publish") ){
+    json_builder_set_member_name(builder, "url");
+    sprintf(url, "rtmp://%s/live/publish", host); 
+    json_builder_add_string_value(builder, url);
+  }
   json_builder_set_member_name(builder, "result");
   json_builder_add_string_value(builder, errorno ? "ERROR" :"OK");
 

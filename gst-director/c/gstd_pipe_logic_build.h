@@ -37,4 +37,8 @@ typedef struct _PipelineDescribe{
 
 } PipelineDescribe;
 
+typedef struct _StreamerInfo{
+   gchar pipelist[1024][1024];
+
+} StreamerInfo;
 gchar* message_process(const gchar* msg);

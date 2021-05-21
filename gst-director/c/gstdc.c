@@ -254,7 +254,8 @@ gint prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
   sprintf (pd->pipename, "dummy%d", new_id);
   if(!strncmp(pro,"rtmp",4)){
     //sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2udp(), pd->__args.src_uri, "127.0.0.1", new_id);
-    sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2tcp(), pd->__args.src_uri, (long long)0, "127.0.0.1", new_id);
+    sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2tcp(), pd->__args.src_uri, 
+		    (long long)0, "127.0.0.1", new_id);
   }else{
   }
   g_print ("prepare -- %s \n", pd->__str);
@@ -517,7 +518,6 @@ set_opt:
         if (is_exist(p)) {
 		rs++;
 	}
-	g_print("No render???\n");
       }
       if (rs > 0) {
 	gint rid = rs > 1 ? 0 : rs-1;
@@ -558,6 +558,9 @@ set_opt:
     }
 
     if (is_exist ("publish")) {
+	    if(rs > 0){
+      pd->__args.sets[0].s = 0;
+	    }
       convert_process (pd);
       if (a != -1) {
       if(strcmp(cur_a,an)){
@@ -571,6 +574,9 @@ set_opt:
       }
       sprintf (pd->pipename, "%s", "publish");
     }
+	    if(rs > 0){
+      pd->__args.sets[0].s = 0;
+	    }
     convert_process (pd);
 
   } else if (!strcmp (cmd, "publish")) {
@@ -608,7 +614,8 @@ set_opt:
 
     pd->cmd = CREATE | PLAY;
     sprintf (pd->pipename, "dummy%d", 12340+id);
-    sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2tcp(), "rtmp://127.0.0.1/live/ch0" ,(long long)msecs*1000000, "127.0.0.1", 12340+id);
+    sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2tcp(), "rtmp://127.0.0.1/live/ch0" 
+		    ,(long long)msecs*1000000, "127.0.0.1", 12340+id);
     g_print("set %s to %s \n",pd->pipename,pd->__str);
     convert_process (pd);
 

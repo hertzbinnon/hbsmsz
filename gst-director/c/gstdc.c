@@ -603,6 +603,7 @@ set_opt:
 
   } else if (!strcmp (cmd, "delay")) {
     gint msecs = json_object_get_int_member (obj,"time");
+#if 0
     gchar vn[1024], an[1024];
 
     pd->cmd = DELETE;
@@ -625,6 +626,15 @@ set_opt:
     sprintf (pd->__str, __STREAM_IN__TCP (atrack, vtrack), 12340+id, id, vn,an);
     g_print("set %s to %s \n",pd->pipename,pd->__str);
     convert_process (pd);
+#else
+    pd->cmd = SET_OPT;
+    sprintf (pd->pipename, "dummy%d", 12340+id);
+    sprintf (pd->__args.sets[0].ele_name, "%s", "delayer");
+    sprintf (pd->__args.sets[0].property, "%s", "min-threshold-time");
+    sprintf (pd->__args.sets[0].property_value, "%lld", (long long)msecs*1000000);
+    pd->__args.sets[0].s = 1;
+    convert_process (pd);
+#endif
 
 	 // is_exist("test-->");
   } else if (!strcmp (cmd, "volume")) {

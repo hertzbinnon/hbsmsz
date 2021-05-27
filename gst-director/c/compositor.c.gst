@@ -579,8 +579,11 @@ gst_compositor_set_property (GObject * object,
   GstCompositor *self = GST_COMPOSITOR (object);
 #if 1
   gchar* node_name = NULL;
-  GObject *obj = NULL;
   gchar **tokens, **tokensindex, **tokensvalue;
+  gchar *name;
+  GList *l;
+  GstVideoAggregatorPad *vaggpad ; 
+  GObject *obj = NULL;
 #endif
 
   switch (prop_id) {
@@ -599,11 +602,21 @@ gst_compositor_set_property (GObject * object,
     if(!tokensvalue) break;
 
     //GST_OBJECT_LOCK (self);
-    obj = g_list_nth_data (GST_ELEMENT_CAST (self)->sinkpads, atoi(tokensindex[1]));
+    for (l = GST_ELEMENT_CAST (self)->sinkpads; l; l = l->next) {
+      vaggpad = l->data;
+      //obj = g_list_nth_data (GST_ELEMENT_CAST (self)->sinkpads, atoi(tokensindex[1]));
+      name = gst_pad_get_name(vaggpad);
+      if(!g_strcmp0(tokens[0],name)) {
+	obj = vaggpad;
+        GST_WARNING_OBJECT (self, "%s == %s ?", tokens[0],name);
+	break;
+      }
+      g_free (name);
+    }
     if (obj){
       gst_debug_hertz();
       gst_object_ref (obj);
-      GST_WARNING_OBJECT (self, "%s=%s obj=%x", tokensvalue[0], tokensvalue[1], obj);
+      GST_WARNING_OBJECT (self, "%s=%s ", tokensvalue[0], tokensvalue[1]);
       if(!g_strcmp0("alpha",tokensvalue[0]))
         GST_COMPOSITOR_PAD(obj)->alpha = atoi(tokensvalue[1]);
         //g_object_set((GstCompositorPad *)obj, tokensvalue[0], atoi(tokensvalue[1]), NULL);
@@ -615,7 +628,9 @@ gst_compositor_set_property (GObject * object,
         GST_COMPOSITOR_PAD(obj)->width = atoi(tokensvalue[1]);
       else if (!g_strcmp0("height",tokensvalue[0]))
         GST_COMPOSITOR_PAD(obj)->height = atoi(tokensvalue[1]);
-      else if (!g_strcmp0("zorder",tokensvalue[0]))
+      else if (!g_strcmp0("operator",tokensvalue[0]))
+        GST_COMPOSITOR_PAD(obj)->op = atoi(tokensvalue[1]);
+      else if(!g_strcmp0("zorder",tokensvalue[0]))
         //GST_COMPOSITOR_PAD(obj)->parent.zorder = atoi(tokensvalue[1]);
         g_object_set(obj,tokensvalue[0],atoi(tokensvalue[1]),NULL);
       else

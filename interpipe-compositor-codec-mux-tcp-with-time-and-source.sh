@@ -8,7 +8,7 @@ export GST_PLUGIN_FEATURE_RANK=nvh264dec:259
 trap "STOP=1" SIGINT
 # #####
 gstd-client -p 5000 pipeline_create source0 rtmp2src location=rtmp://127.0.0.1/live/ch0 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12341 demuxer. ! aacparse ! queue ! muxer.
-gstd-client -p 5000 pipeline_create source1 rtmp2src location=rtmp://127.0.0.1/live/ch1 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12342 demuxer. ! aacparse ! queue ! muxer.
+gstd-client -p 5000 pipeline_create source1 rtmp2src location=rtmp://127.0.0.1/live/ch2 ! flvdemux name=demuxer demuxer. ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=nal  ! queue  ! mpegtsmux name=muxer alignment=7 ! queue ! tcpserversink host=127.0.0.1 port=12342 demuxer. ! aacparse ! queue ! muxer.
 
 gstd-client -p 5000 pipeline_play source0
 gstd-client -p 5000 pipeline_play source1
@@ -53,8 +53,7 @@ sleep $switch
 # Start alternating the source pipeline being listened
 while :
 do
-	gstd-client element_set pipe_comp     comp pad-set sink_0::alpha=0
-	gstd-client element_set pipe_comp     comp pad-set sink_1::alpha=1
+	gstd-client element_set pipe_comp     comp pad-set sink_0::alpha=0\&sink_1::alpha=1
 	#gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_2
 	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_22
 	echo -e "\n ====> Change to listening to scr_pipe_2 \n"
@@ -64,8 +63,7 @@ do
 		break
 	fi
 
-	gstd-client element_set pipe_comp     comp pad-set sink_0::alpha=1
-	gstd-client element_set pipe_comp     comp pad-set sink_1::alpha=0
+	gstd-client element_set pipe_comp     comp pad-set sink_0::alpha=1\&sink_1::alpha=0
 	#gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_1
 	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_11
 	echo -e "\n ====> Change to listening to scr_pipe_1 \n"

@@ -391,6 +391,7 @@ gchar * message_process (const gchar * msg)
       //ret =  json_object_get_int_member (sub_obj1,"width");
       //ret =  json_object_get_int_member (sub_obj1,"height");
       pd->cmd = SET_OPT;
+     if (is_exist ("preview")) {
       memset(pd->__args.sets,0,sizeof(pd->__args.sets));
       sprintf (pd->pipename, "%s","preview");
       sprintf (pd->__args.sets[0].ele_name, "%spreview", "videosrc");
@@ -398,7 +399,9 @@ gchar * message_process (const gchar * msg)
       sprintf (pd->__args.sets[0].property_value, "videorender%d", rid);
       pd->__args.sets[0].s = 1;
       convert_process (pd);
+     }
 
+     if (is_exist ("publish")) {
       memset(pd->__args.sets,0,sizeof(pd->__args.sets));
       //g_print("%d %d %d\n",sizeof(*pd->__args.sets),sizeof(pd->__args.sets),sizeof(OptionSet));
       sprintf (pd->pipename, "%s", "publish");
@@ -407,6 +410,7 @@ gchar * message_process (const gchar * msg)
       sprintf (pd->__args.sets[0].property_value, "videorender%d", rid);
       pd->__args.sets[0].s = 1;
       convert_process (pd);
+     }
 
     }else if(!strcmp(ret, "update")){
       if (!is_exist (pd->pipename)) {
@@ -439,29 +443,33 @@ gchar * message_process (const gchar * msg)
     }else if(!strcmp(ret, "delete")){
       gchar name[1024];
 
-      sprintf (pd->pipename, "videorender-%d", rid);
       sprintf (name, "videorendersrc%d", rid);
       r = get_property_value (pd->pipename,  name, "listen-to", rn);
       if (r != GSTC_OK) {
         goto error;
       }
-      g_print("render listen to %s\n",rn);
-      pd->cmd = DELETE;
-      convert_process (pd);
 
       pd->cmd = SET_OPT;
+     if (is_exist ("preview")) {
       sprintf (pd->pipename, "%s","preview");
       sprintf (pd->__args.sets[0].ele_name, "%spreview", "videosrc");
       sprintf (pd->__args.sets[0].property, "%s", "listen-to");
       sprintf (pd->__args.sets[0].property_value, "%s", rn);
       pd->__args.sets[0].s = 1;
       convert_process (pd);
+     }
 
+     if (is_exist ("publish")) {
       sprintf (pd->pipename, "%s", "publish");
       sprintf (pd->__args.sets[0].ele_name, "%spublish", "videosrc");
       sprintf (pd->__args.sets[0].property, "%s", "listen-to");
       sprintf (pd->__args.sets[0].property_value, "%s", rn);
       pd->__args.sets[0].s = 1;
+      convert_process (pd);
+     }
+
+      pd->cmd = DELETE;
+      sprintf (pd->pipename, "videorender-%d", rid);
       convert_process (pd);
     }else{
 	g_print("No implement action %s\n", ret);
@@ -527,10 +535,14 @@ set_opt:
         pdt->cmd = SET_OPT;
         sprintf (pdt->pipename, "videorender-%d", rid);
         sprintf (pdt->__args.sets[0].ele_name, "videorendersrc%d", rid);
-        sprintf (pdt->__args.sets[0].property, "%s", "listen-to");
-        sprintf (pdt->__args.sets[0].property_value, "vtrack-id-%d", v);
-        pdt->__args.sets[0].s = 1;
-        convert_process (pdt);
+        r = get_property_value ( pdt->pipename,pdt->__args.sets[0].ele_name, "listen-to", vn);
+        g_print("%s ==  %s\n",vn, cur_v);
+        if (r == GSTC_OK && strcmp(cur_v,vn) ) {
+          sprintf (pdt->__args.sets[0].property, "%s", "listen-to");
+          sprintf (pdt->__args.sets[0].property_value, "vtrack-id-%d", v);
+          pdt->__args.sets[0].s = 1;
+          convert_process (pdt);
+	}
         free (pdt);
 
         sprintf (pd->__args.sets[0].property_value, "videorender%d", rs-1);

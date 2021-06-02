@@ -578,12 +578,13 @@ gst_compositor_set_property (GObject * object,
 {
   GstCompositor *self = GST_COMPOSITOR (object);
 #if 1
-  gchar* node_name = NULL;
-  gchar **tokens, **tokensindex, **tokensvalue;
+  gchar* node_name = NULL, *node_list = NULL;
+  gchar  **tokenslist, **tokens, **tokensindex, **tokensvalue;
   gchar *name;
   GList *l;
   GstVideoAggregatorPad *vaggpad ; 
   GObject *obj = NULL;
+  gint i;
 #endif
 
   switch (prop_id) {
@@ -592,31 +593,32 @@ gst_compositor_set_property (GObject * object,
       break;
 #if 1
     case PROP_SINKPAD_PROPERTY :
-    node_name = g_strdup (g_value_get_string (value)); // sink_0::xpos=1;
-    GST_WARNING_OBJECT (self, "%s",node_name);
-    tokens = g_strsplit (node_name, "::", 2);
-    if(!tokens) break;
-    tokensindex = g_strsplit (tokens[0], "_", 2);
-    if(!tokensindex) break;
-    tokensvalue = g_strsplit (tokens[1], "=", 2);
-    if(!tokensvalue) break;
-
-    //GST_OBJECT_LOCK (self);
-    for (l = GST_ELEMENT_CAST (self)->sinkpads; l; l = l->next) {
-      vaggpad = l->data;
-      //obj = g_list_nth_data (GST_ELEMENT_CAST (self)->sinkpads, atoi(tokensindex[1]));
-      name = gst_pad_get_name(vaggpad);
-      if(!g_strcmp0(tokens[0],name)) {
-	obj = vaggpad;
-        GST_WARNING_OBJECT (self, "%s == %s ?", tokens[0],name);
-	break;
-      }
-      g_free (name);
-    }
+      node_list = g_strdup (g_value_get_string (value)); // sink_0::xpos=1sink_1::ypos=1;
+    GST_WARNING_OBJECT (self, "list %s",node_list);
+      tokenslist = g_strsplit (node_list, "&", -1);
+      if(!tokenslist) break;
+      for( i=0,node_name=tokenslist[i]; node_name; node_name=tokenslist[++i] ){
+        tokens = g_strsplit (node_name, "::", 2);
+        if(!tokens) break;
+          tokensindex = g_strsplit (tokens[0], "_", 2);
+        if(!tokensindex) break;
+          tokensvalue = g_strsplit (tokens[1], "=", 2);
+        if(!tokensvalue) break;
+      //GST_OBJECT_LOCK (self);
+        for (l = GST_ELEMENT_CAST (self)->sinkpads; l; l = l->next) {
+          vaggpad = l->data;
+          name = gst_pad_get_name(vaggpad);
+          if(!g_strcmp0(tokens[0],name)) {
+	    obj = vaggpad;
+            GST_WARNING_OBJECT (self, "%s == %s ?", tokens[0],name);
+	    break;
+          }
+          g_free (name);
+        }
     if (obj){
       gst_debug_hertz();
       gst_object_ref (obj);
-      GST_WARNING_OBJECT (self, "%s=%s ", tokensvalue[0], tokensvalue[1]);
+      GST_WARNING_OBJECT (self, "set pad %s property %s = %s",tokens[0],tokensvalue[0], tokensvalue[1]);
       if(!g_strcmp0("alpha",tokensvalue[0]))
         GST_COMPOSITOR_PAD(obj)->alpha = atoi(tokensvalue[1]);
         //g_object_set((GstCompositorPad *)obj, tokensvalue[0], atoi(tokensvalue[1]), NULL);
@@ -640,10 +642,12 @@ gst_compositor_set_property (GObject * object,
       GST_WARNING_OBJECT (self, "sink pad is not found");
     }
     //GST_OBJECT_UNLOCK (self);
-    g_strfreev (tokens);
-    g_strfreev (tokensindex);
-    g_strfreev (tokensvalue);
-    free(node_name);
+      g_strfreev (tokens);
+      g_strfreev (tokensindex);
+      g_strfreev (tokensvalue);
+    }
+    g_strfreev (tokenslist);
+    free(node_list);
     break;
 #endif
     default:

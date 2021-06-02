@@ -117,11 +117,11 @@ echo -e "\n ====> Create the sink_pipe_4 (listener) \n"
 #gstd-client pipeline_create pipe_pub_sink interpipesrc name=interpipesrc1 listen-to=src_1 is-live=true allow-renegotiation=true ! videoconvert ! x264enc ! h264parse ! queue ! flvmux name=muxer ! rtmp2sink location=rtmp://127.0.0.1/live/chan0 sync=false interpipesrc name=interpipesrc11 listen-to=src_11 is-live=true allow-renegotiation=true ! audioconvert ! voaacenc ! aacparse ! queue ! muxer.
 
 gstd-client pipeline_create pipe_pub_sink flvmux name=muxer ! rtmp2sink location=rtmp://127.0.0.1/live/publish sync=false \
-  interpipesrc name=interpipesrcpv listen-to=src_1 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! videoconvert ! nvh264enc gop-size=30 preset=0 bitrate=2000 ! h264parse ! queue ! muxer. \
+  interpipesrc name=interpipesrcpv listen-to=videocompositorsink  is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! videoconvert ! nvh264enc gop-size=30 preset=0 bitrate=2000 ! h264parse ! queue ! muxer. \
   interpipesrc name=interpipesrcpa listen-to=src_11 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! audioconvert ! voaacenc ! aacparse ! queue ! muxer.
 
 gstd-client pipeline_create pipe_pre_sink flvmux name=muxer ! rtmp2sink location=rtmp://127.0.0.1/live/preview sync=false \
-  interpipesrc name=interpipesrcvv listen-to=src_1 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! videoscale ! video/x-raw,width=960,height=480 ! videoconvert ! queue ! nvh264enc gop-size=30 bitrate=1000 ! h264parse ! queue ! muxer. \
+  interpipesrc name=interpipesrcvv listen-to=videocompositorsink is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! videoscale ! video/x-raw,width=960,height=480 ! videoconvert ! queue ! nvh264enc gop-size=30 bitrate=1000 ! h264parse ! queue ! muxer. \
   interpipesrc name=interpipesrcva listen-to=src_11 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! audioconvert ! volume volume=2 ! rsaudioecho ! audioconvert ! voaacenc ! aacparse ! queue ! muxer.
 #interpipesrc name=interpipesrcva listen-to=src_11 is-live=true allow-renegotiation=true format=3 stream-sync=2 max-latency=0 min-latency=0 ! queue ! audioconvert ! volume volume=10 ! queue ! audioresample ! rsaudioloudnorm loudness-target=-5 loudness-range-target=20 ! audioresample ! queue ! audioconvert ! voaacenc ! queue ! aacparse ! queue ! muxer.
 # Change pipelines to PLAYING STATE
@@ -167,8 +167,27 @@ gstd-client pipeline_play pipe_5_src
 gstd-client pipeline_play pipe_6_src
 gstd-client pipeline_play pipe_7_src
 gstd-client pipeline_play pipe_8_src
-#gstd-client pipeline_play pipe_9_src
-#gstd-client pipeline_play pipe_10_src
+gstd-client pipeline_play pipe_9_src
+gstd-client pipeline_play pipe_10_src
+
+sleep 1
+gstd-client pipeline_create pipe_comp compositor name=comp \
+	sink_1::alpha=1 sink_2::alpha=0 sink_3::alpha=0 sink_4::alpha=0 sink_5::alpha=0 sink_6::alpha=0 sink_7::alpha=0 sink_8::alpha=0 sink_9::alpha=0 sink_10::alpha=0 \
+	sink_1::zorder=10 sink_2::zorder=9 sink_3::zorder=8 sink_4::zorder=7 sink_5::zorder=6 sink_6::zorder=5 sink_7::zorder=4 sink_8::zorder=3 sink_9::zorder=2 sink_10::zorder=1 background=black ! \
+	interpipesink name=videocompositorsink caps=video/x-raw sync=false async=false \
+	interpipesrc name=videocompositorsrc1 listen-to=src_1  is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! comp.sink_1 \
+	interpipesrc name=videocompositorsrc2 listen-to=src_2  is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! comp.sink_2 \
+	interpipesrc name=videocompositorsrc3 listen-to=src_3  is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! comp.sink_3 \
+	interpipesrc name=videocompositorsrc4 listen-to=src_4  is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! comp.sink_4 \
+	interpipesrc name=videocompositorsrc5 listen-to=src_5  is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! comp.sink_5 \
+	interpipesrc name=videocompositorsrc6 listen-to=src_6  is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! comp.sink_6 \
+	interpipesrc name=videocompositorsrc7 listen-to=src_7  is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! comp.sink_7 \
+	interpipesrc name=videocompositorsrc8 listen-to=src_8  is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! comp.sink_8 \
+	interpipesrc name=videocompositorsrc9 listen-to=src_9  is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! comp.sink_9 \
+	interpipesrc name=videocompositorsrc10 listen-to=src_10  is-live=true allow-renegotiation=true format=3 stream-sync=2 ! queue ! videoconvert ! comp.sink_10 
+sleep 1
+gstd-client pipeline_play pipe_comp
+# NOTE: the pipe_comp would be renegoted if pipe_comp set play to after pre_sink
 
 gstd-client pipeline_play pipe_1_sink
 gstd-client pipeline_play pipe_2_sink
@@ -178,11 +197,11 @@ gstd-client pipeline_play pipe_5_sink
 gstd-client pipeline_play pipe_6_sink
 gstd-client pipeline_play pipe_7_sink
 gstd-client pipeline_play pipe_8_sink
-#gstd-client pipeline_play pipe_9_sink
-#gstd-client pipeline_play pipe_10_sink
+gstd-client pipeline_play pipe_9_sink
+gstd-client pipeline_play pipe_10_sink
 gstd-client pipeline_play pipe_pub_sink
 gstd-client pipeline_play pipe_pre_sink
-
+sleep 1
 echo -e "\n ====> Every $switch seconds the sink_pipe will change the src_pipe that is listening to \n"
 echo -e "\n ====> Start listening to scr_pipe_1 \n"
 sleep $switch
@@ -190,9 +209,9 @@ sleep $switch
 # Start alternating the source pipeline being listened
 while :
 do
-	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_2
+	gstd-client element_set pipe_comp comp pad-set sink_1::alpha=0\&sink_2::alpha=1\&sink_3::alpha=0\&sink_4::alpha=0\&sink_5::alpha=0\&sink_6::alpha=0\&sink_7::alpha=0\&sink_8::alpha=0\&sink_9::alpha=0\&sink_10::alpha=0
+	#gstd-client element_set pipe_comp comp pad-set sink_1::zorder=9\&sink_2::zorder=10\&sink_3::zorder=8\&sink_4::zorder=7\&sink_5::zorder=6\&sink_6::zorder=5\&sink_7::zorder=4\&sink_8::zorder=3\&sink_9::zorder=2\&sink_10::zorder=1
 	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_22
-	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_2
 	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_22
 	echo -e "\n ====> Change to listening to scr_pipe_2 \n"
 	sleep $switch
@@ -201,9 +220,9 @@ do
 		break
 	fi
 
-	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_3
+	gstd-client element_set pipe_comp comp pad-set sink_1::alpha=0\&sink_2::alpha=0\&sink_3::alpha=1\&sink_4::alpha=0\&sink_5::alpha=0\&sink_6::alpha=0\&sink_7::alpha=0\&sink_8::alpha=0\&sink_9::alpha=0\&sink_10::alpha=0
+	#gstd-client element_set pipe_comp comp pad-set sink_1::zorder=0\&sink_2::zorder=0\&sink_3::zorder=0\&sink_4::zorder=0\&sink_5::zorder=0\&sink_6::zorder=0\&sink_7::zorder=0\&sink_8::zorder=0\&sink_9::zorder=0\&sink_10::zorder=0
 	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_33
-	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_3
 	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_33
 	echo -e "\n ====> Change to listening to scr_pipe_3 \n"
 	sleep $switch
@@ -212,9 +231,9 @@ do
 		break
 	fi
 
-	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_4
+	gstd-client element_set pipe_comp comp pad-set sink_1::alpha=0\&sink_2::alpha=0\&sink_3::alpha=0\&sink_4::alpha=1\&sink_5::alpha=0\&sink_6::alpha=0\&sink_7::alpha=0\&sink_8::alpha=0\&sink_9::alpha=0\&sink_10::alpha=0
+	#gstd-client element_set pipe_comp comp pad-set sink_1::zorder=0\&sink_2::zorder=0\&sink_3::zorder=0\&sink_4::zorder=0\&sink_5::zorder=0\&sink_6::zorder=0\&sink_7::zorder=0\&sink_8::zorder=0\&sink_9::zorder=0\&sink_10::zorder=0
 	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_44
-	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_4
 	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_44
 	echo -e "\n ====> Change to listening to scr_pipe_4 \n"
 	sleep $switch
@@ -223,9 +242,9 @@ do
 		break
 	fi
 
-	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_5
+	gstd-client element_set pipe_comp comp pad-set sink_1::alpha=0\&sink_2::alpha=0\&sink_3::alpha=0\&sink_4::alpha=0\&sink_5::alpha=1\&sink_6::alpha=0\&sink_7::alpha=0\&sink_8::alpha=0\&sink_9::alpha=0\&sink_10::alpha=0
+	#gstd-client element_set pipe_comp comp pad-set sink_1::zorder=0\&sink_2::zorder=0\&sink_3::zorder=0\&sink_4::zorder=0\&sink_5::zorder=0\&sink_6::zorder=0\&sink_7::zorder=0\&sink_8::zorder=0\&sink_9::zorder=0\&sink_10::zorder=0
 	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_55
-	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_5
 	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_55
 	echo -e "\n ====> Change to listening to scr_pipe_5 \n"
 	sleep $switch
@@ -234,9 +253,9 @@ do
 		break
 	fi
 
-	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_6
+	gstd-client element_set pipe_comp comp pad-set sink_1::alpha=0\&sink_2::alpha=0\&sink_3::alpha=0\&sink_4::alpha=0\&sink_5::alpha=0\&sink_6::alpha=1\&sink_7::alpha=0\&sink_8::alpha=0\&sink_9::alpha=0\&sink_10::alpha=0
+	#gstd-client element_set pipe_comp comp pad-set sink_1::zorder=0\&sink_2::zorder=0\&sink_3::zorder=0\&sink_4::zorder=0\&sink_5::zorder=0\&sink_6::zorder=0\&sink_7::zorder=0\&sink_8::zorder=0\&sink_9::zorder=0\&sink_10::zorder=0
 	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_66
-	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_6
 	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_66
 	echo -e "\n ====> Change to listening to scr_pipe_6 \n"
 	sleep $switch
@@ -245,9 +264,9 @@ do
 		break
 	fi
 
-	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_7
+	gstd-client element_set pipe_comp comp pad-set sink_1::alpha=0\&sink_2::alpha=0\&sink_3::alpha=0\&sink_4::alpha=0\&sink_5::alpha=0\&sink_6::alpha=0\&sink_7::alpha=1\&sink_8::alpha=0\&sink_9::alpha=0\&sink_10::alpha=0
+	#gstd-client element_set pipe_comp comp pad-set sink_1::zorder=0\&sink_2::zorder=0\&sink_3::zorder=0\&sink_4::zorder=0\&sink_5::zorder=0\&sink_6::zorder=0\&sink_7::zorder=0\&sink_8::zorder=0\&sink_9::zorder=0\&sink_10::zorder=0
 	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_77
-	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_7
 	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_77
 	echo -e "\n ====> Change to listening to scr_pipe_7 \n"
 	sleep $switch
@@ -256,9 +275,9 @@ do
 		break
 	fi
 
-	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_8
+	gstd-client element_set pipe_comp comp pad-set sink_1::alpha=0\&sink_2::alpha=0\&sink_3::alpha=0\&sink_4::alpha=0\&sink_5::alpha=0\&sink_6::alpha=0\&sink_7::alpha=0\&sink_8::alpha=1\&sink_9::alpha=0\&sink_10::alpha=0
+	#gstd-client element_set pipe_comp comp pad-set sink_1::zorder=0\&sink_2::zorder=0\&sink_3::zorder=0\&sink_4::zorder=0\&sink_5::zorder=0\&sink_6::zorder=0\&sink_7::zorder=0\&sink_8::zorder=0\&sink_9::zorder=0\&sink_10::zorder=0
 	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_88
-	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_8
 	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_88
 	echo -e "\n ====> Change to listening to scr_pipe_8 \n"
 	sleep $switch
@@ -267,33 +286,33 @@ do
 		break
 	fi
 
-#	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_9
-#	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_99
-#	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_9
-#	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_99
-#	echo -e "\n ====> Change to listening to scr_pipe_9 \n"
-#	echo -e "\n ====> Type Ctrl+C to stop the example execution, otherwise it will iterate infinitely!\n"
-#	sleep $switch
-#	if [ $STOP -ne 0 ]
-#	then
-#		break
-#	fi
+	gstd-client element_set pipe_comp comp pad-set sink_1::alpha=0\&sink_2::alpha=0\&sink_3::alpha=0\&sink_4::alpha=0\&sink_5::alpha=0\&sink_6::alpha=0\&sink_7::alpha=0\&sink_8::alpha=0\&sink_9::alpha=1\&sink_10::alpha=0
+	#gstd-client element_set pipe_comp comp pad-set sink_1::zorder=0\&sink_2::zorder=0\&sink_3::zorder=0\&sink_4::zorder=0\&sink_5::zorder=0\&sink_6::zorder=0\&sink_7::zorder=0\&sink_8::zorder=0\&sink_9::zorder=0\&sink_10::zorder=0
+	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_99
+	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_99
+	echo -e "\n ====> Change to listening to scr_pipe_9 \n"
+	echo -e "\n ====> Type Ctrl+C to stop the example execution, otherwise it will iterate infinitely!\n"
+	sleep $switch
+	if [ $STOP -ne 0 ]
+	then
+		break
+	fi
 
-#	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_10
-#	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_1010
-#	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_10
-#	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_1010
-#	echo -e "\n ====> Change to listening to scr_pipe_10 \n"
-#	echo -e "\n ====> Type Ctrl+C to stop the example execution, otherwise it will iterate infinitely!\n"
-#	sleep $switch
-#	if [ $STOP -ne 0 ]
-#	then
-#		break
-#	fi
+	gstd-client element_set pipe_comp comp pad-set sink_1::alpha=0\&sink_2::alpha=0\&sink_3::alpha=0\&sink_4::alpha=0\&sink_5::alpha=0\&sink_6::alpha=0\&sink_7::alpha=0\&sink_8::alpha=0\&sink_9::alpha=0\&sink_10::alpha=1
+	#gstd-client element_set pipe_comp comp pad-set sink_1::zorder=0\&sink_2::zorder=0\&sink_3::zorder=0\&sink_4::zorder=0\&sink_5::zorder=0\&sink_6::zorder=0\&sink_7::zorder=0\&sink_8::zorder=0\&sink_9::zorder=0\&sink_10::zorder=0
+	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_1010
+	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_1010
+	echo -e "\n ====> Change to listening to scr_pipe_10 \n"
+	echo -e "\n ====> Type Ctrl+C to stop the example execution, otherwise it will iterate infinitely!\n"
+	sleep $switch
+	if [ $STOP -ne 0 ]
+	then
+		break
+	fi
 
-	gstd-client element_set pipe_pub_sink interpipesrcpv listen-to src_1
+	gstd-client element_set pipe_comp comp pad-set sink_1::alpha=1\&sink_2::alpha=0\&sink_3::alpha=0\&sink_4::alpha=0\&sink_5::alpha=0\&sink_6::alpha=0\&sink_7::alpha=0\&sink_8::alpha=0\&sink_9::alpha=0\&sink_10::alpha=0
+	#gstd-client element_set pipe_comp comp pad-set sink_1::zorder=0\&sink_2::zorder=0\&sink_3::zorder=0\&sink_4::zorder=0\&sink_5::zorder=0\&sink_6::zorder=0\&sink_7::zorder=0\&sink_8::zorder=0\&sink_9::zorder=0\&sink_10::zorder=0
 	gstd-client element_set pipe_pub_sink interpipesrcpa listen-to src_11
-	gstd-client element_set pipe_pre_sink interpipesrcvv listen-to src_1
 	gstd-client element_set pipe_pre_sink interpipesrcva listen-to src_11
 	echo -e "\n ====> Change to listening to scr_pipe_1 \n"
 	echo -e "\n ====> Type Ctrl+C to stop the example execution, otherwise it will iterate infinitely!\n"
@@ -326,8 +345,8 @@ gstd-client pipeline_delete pipe_5_src
 gstd-client pipeline_delete pipe_6_src
 gstd-client pipeline_delete pipe_7_src
 gstd-client pipeline_delete pipe_8_src
-#gstd-client pipeline_delete pipe_9_src
-#gstd-client pipeline_delete pipe_10_src
+gstd-client pipeline_delete pipe_9_src
+gstd-client pipeline_delete pipe_10_src
 
 gstd-client pipeline_delete pipe_1_sink
 gstd-client pipeline_delete pipe_2_sink
@@ -337,10 +356,11 @@ gstd-client pipeline_delete pipe_5_sink
 gstd-client pipeline_delete pipe_6_sink
 gstd-client pipeline_delete pipe_7_sink
 gstd-client pipeline_delete pipe_8_sink
-#gstd-client pipeline_delete pipe_9_sink
-#gstd-client pipeline_delete pipe_10_sink
+gstd-client pipeline_delete pipe_9_sink
+gstd-client pipeline_delete pipe_10_sink
 
 gstd-client pipeline_delete pipe_pub_sink
 gstd-client pipeline_delete pipe_pre_sink
 
+gstd-client pipeline_delete pipe_comp
 echo -e "\n ====> CCTV Example Finished!!! \n"

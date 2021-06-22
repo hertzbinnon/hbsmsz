@@ -57,6 +57,24 @@ gint is_source_null()
   return flag;
 }
 
+gint get_source_nums(){
+  GstcStatus ret;
+  GstClient *client = connect_gstd ();
+  gchar **pipelist;
+  gint len;
+  ret = gstc_pipeline_list (client, &pipelist, &len);
+  gint flag = 0;
+  if (ret != GSTC_OK){
+    return flag ;
+  }
+  for (int i = 0; i < len; i++) {
+    if (!strncmp ("channel-id-", pipelist[i],11)) {
+      flag += 1;
+      g_print("++++> %s\n",pipelist[i]);
+    }
+  }
+  return flag;
+}
 gint is_exist (gchar * pipename)
 {
   GstcStatus ret;
@@ -310,6 +328,7 @@ gchar * message_process (const gchar * msg)
   }
 
   if (!strcmp (cmd, "pull")) {
+    if(get_source_nums() == 4) { errorno=1; goto error;}
     ret = json_object_get_string_member (obj, "url");
     if (!ret){
       goto error;
@@ -330,7 +349,8 @@ gchar * message_process (const gchar * msg)
     sprintf (vn, "vtrack-id-%d", id);
     sprintf (an, "atrack-id-%d", id);
     //sprintf (pd->__str, __STREAM_IN__ (atrack, vtrack), pd->__args.src_uri, vn,an);
-    sprintf (pd->__str, __STREAM_IN__TCP (atrack, vtrack), port, id, vn,an);
+    //sprintf (pd->__str, __STREAM_IN__TCP_TEST (atrack, vtrack), port, id, vn,an);
+    sprintf (pd->__str, __STREAM_IN__TCP (atrack, vtrack), port, vn,an);
 
     g_print ("pull-- %s \n", pd->__str);
     convert_process (pd);

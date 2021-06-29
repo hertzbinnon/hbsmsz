@@ -670,6 +670,7 @@ set_opt:
 
 	 // is_exist("test-->");
   } else if (!strcmp (cmd, "volume")) {
+     //errorno=1; goto error;
     ret = json_object_get_string_member (obj,"audio_id");
     //gint audio_id = atoi(ret);
     int r = json_object_get_int_member (obj,"val");

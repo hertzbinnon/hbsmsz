@@ -7,7 +7,7 @@
 
 #define __STREAM_IN__TCP_TEST(videoname,audioname) "tcpclientsrc host=127.0.0.1 port=%d ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec !  queue ! clockoverlay text=\"channel %d\" ! videorate max-rate=25 average-period=100000000 ! video/x-raw, width=3840, height=1920 ! queue ! interpipesink name=%s caps=video/x-raw,width=3840,height=1920 sync=false async=false source. ! queue ! avdec_aac ! audioconvert ! volume name=volume volume=1 ! rsaudioecho ! audioconvert ! queue ! interpipesink name=%s caps=audio/mpeg sync=false async=false"
 
-#define __STREAM_IN__TCP(videoname,audioname) "tcpclientsrc host=127.0.0.1 port=%d ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec !  queue ! videorate max-rate=25 average-period=100000000 ! video/x-raw, width=3840, height=1920 ! queue ! interpipesink name=%s caps=video/x-raw,width=3840,height=1920 sync=false async=false source. ! queue ! avdec_aac ! audioconvert ! volume name=volume volume=1 ! rsaudioecho ! audioconvert ! queue ! interpipesink name=%s caps=audio/mpeg sync=false async=false"
+#define __STREAM_IN__TCP(videoname,audioname) "tcpclientsrc host=127.0.0.1 port=%d ! tsdemux name=source ! queue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec !  queue ! videorate max-rate=25 average-period=100000000 ! video/x-raw, width=3840, height=1920 ! queue ! interpipesink name=%s caps=video/x-raw,width=3840,height=1920 sync=false async=false source. ! queue ! avdec_aac ! audioconvert ! volume name=volume volume=1 ! audiornnoise ! audioconvert ! queue ! interpipesink name=%s caps=audio/mpeg sync=false async=false"
 
 #define __STREAM_RENDER__audio()
 

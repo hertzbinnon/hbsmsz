@@ -1,2 +1,7 @@
-export LD_LIBRARY_PATH=/home/hertz/sdb1/LetinCloudLive_ProgramDirectorServer/x86_64-linux-gnu/lib:/home/hertz/sdb1/hbsmsz/Install/lib/x86_64-linux-gnu/
-export GST_PLUGIN_PATH=/home/hertz/sdb1/hbsmsz/Install/lib/x86_64-linux-gnu/gstreamer-1.0:/home/hertz/sdb1/LetinCloudLive_ProgramDirectorServer/x86_64-linux-gnu/lib/gstreamer-1.0
+#!/bin/bash
+
+killall -9 gstd-1.0
+killall -9  hbsmsz
+export GST_DEBUG=gdkpixbufoverlay:9
+LD_LIBRARY_PATH=/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib/x86_64-linux-gnu/:/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib:/usr/local/lib64/ GST_PLUGIN_PATH=/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib/gstreamer-1.0:/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib/x86_64-linux-gnu/gstreamer-1.0 /tmp/gstd-1.0 -e > /dev/null 2>&1 &
+LD_LIBRARY_PATH=/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib/x86_64-linux-gnu/:/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib:/usr/local/lib64/ /tmp/hbsmsz -p 8081 > /tmp/hbsmsz.log 2>&1 &

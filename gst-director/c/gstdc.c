@@ -328,7 +328,7 @@ gchar * message_process (const gchar * msg)
   }
 
   if (!strcmp (cmd, "pull")) {
-    if(get_source_nums() == 4) { errorno=1; goto error;}
+    //if(get_source_nums() == 4) { errorno=1; goto error;}
     ret = json_object_get_string_member (obj, "url");
     if (!ret){
       goto error;

@@ -500,7 +500,7 @@ gchar * message_process (const gchar * msg)
     int a, v, rs=0;
     char cur_v[100],cur_a[100];
     GstcStatus r;
-    sleep(1);
+    sleep(0.8);
     g_print ("switch \n");
     sprintf (pd->pipename, "%s", "preview");
     if (is_exist(pd->pipename)) {

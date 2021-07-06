@@ -328,7 +328,7 @@ gchar * message_process (const gchar * msg)
   }
 
   if (!strcmp (cmd, "pull")) {
-    //if(get_source_nums() == 4) { errorno=1; goto error;}
+    if(get_source_nums() == 5) { errorno=1; goto error;}
     ret = json_object_get_string_member (obj, "url");
     if (!ret){
       goto error;
@@ -500,6 +500,7 @@ gchar * message_process (const gchar * msg)
     int a, v, rs=0;
     char cur_v[100],cur_a[100];
     GstcStatus r;
+    sleep(1);
     g_print ("switch \n");
     sprintf (pd->pipename, "%s", "preview");
     if (is_exist(pd->pipename)) {

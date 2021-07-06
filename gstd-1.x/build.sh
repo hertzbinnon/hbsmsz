@@ -8,3 +8,6 @@ export PYTHONPATH=/home/hertz/sdb1/cerbero/build/build-tools/lib/python3.7/site-
 export PATH=/home/hertz/sdb1/cerbero/build/build-tools/bin/:/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/bin:$PATH
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/lib/x86_64-linux-gnu/pkgconfig
 export LD_LIBRARY_PATH=/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib/x86_64-linux-gnu/:/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib:/usr/local/lib64/
+#meson -Dprefix=/usr/local --buildtype=release  builddir
+#ninja -C builddir uninstall
+#ninja -C builddir install

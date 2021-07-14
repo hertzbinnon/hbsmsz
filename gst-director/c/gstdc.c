@@ -21,6 +21,12 @@ GstClient * connect_gstd ()
   const int keep_open = 1;
 
   if (!__client) {
+      ret = gstc_client_new (address, port, wait_time, keep_open, &__client);
+      if (GSTC_OK != ret) {
+        g_print ("Connected daemon Error !!! \n");
+      }
+  }
+  if (__client) {
     ret = gstc_client_ping(__client);
     if (GSTC_OK != ret) {
       g_print ("Connected Daemon Error !!! \n");

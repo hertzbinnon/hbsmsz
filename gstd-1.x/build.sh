@@ -1,4 +1,8 @@
 #!/bin/bash
+apt install libdaemon-dev
+apt install libjansson-dev
+apt install libreadline-dev python3-pip
+
 #~/sdb1/cerbero/cerbero-uninstalled shell
 # 8b1fb13d78d0c6a25e94eb8aa027db6837d4cd41 --> commit
 export GST_PLUGIN_PATH=/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib/gstreamer-1.0:/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib/x86_64-linux-gnu/gstreamer-1.0
@@ -11,3 +15,4 @@ export LD_LIBRARY_PATH=/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/lib/x86_
 #meson -Dprefix=/usr/local --buildtype=release  builddir
 #ninja -C builddir uninstall
 #ninja -C builddir install
+meson _builddir.18_04/ -Denable-gtk-doc=false --prefix=/home/hertz/sdb1/cerbero/build/dist/linux_x86_64/

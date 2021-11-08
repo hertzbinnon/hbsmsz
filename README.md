@@ -1,3 +1,5 @@
+Rendering,Transcoding,Transporting,Recording,OS
+                    AI process
 Initial repo ...
 0.  website; 360 render; webrtc; low delay; rist/quic/srt; 
 1.  mediasoup website build and deploy finished [done]

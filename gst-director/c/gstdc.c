@@ -373,8 +373,12 @@ gchar * message_process (const gchar * msg)
 
     sprintf (pd->pipename, "channel-id-%d", id);
     sprintf (pd->__args.out_uri, "rtmp://127.0.0.1/live/chan-id-%d", id);
+    
+       JsonObject *sub_obj = json_object_get_object_member (obj,"encoder_params");
+       int bitrate = json_object_get_int_member (sub_obj,"bitrate") ;
+    
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack), pd->__args.out_uri,
-        pd->pipename, vn, pd->pipename, an);
+        pd->pipename, vn, bitrate / 1000,pd->pipename, an);
     g_print ("pull-- %s \n", pd->__str);
     convert_process (pd);
 #if 1 // logo render
@@ -528,8 +532,10 @@ gchar * message_process (const gchar * msg)
     sprintf (pd->__args.prev_uri, "%s", "rtmp://127.0.0.1/live/preview");
     sprintf (vn, "vtrack-id-%d", id);
     sprintf (an, "atrack-id-%d", id);
+       JsonObject *sub_obj = json_object_get_object_member (obj,"encoder_params");
+       int bitrate = json_object_get_int_member (sub_obj,"bitrate");
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack),
-        pd->__args.prev_uri, pd->pipename, vn, pd->pipename, an);
+        pd->__args.prev_uri, pd->pipename, vn, bitrate / 1000, pd->pipename, an);
     convert_process (pd);
     g_print("switch %s\n", pd->__str);
     goto error;
@@ -646,9 +652,11 @@ set_opt:
     ret = json_object_get_string_member (obj, "url");
     if (!ret)
         goto error;
+       JsonObject *sub_obj = json_object_get_object_member (obj,"encoder_params");
+       int bitrate = json_object_get_int_member (sub_obj,"bitrate");
     memcpy (pd->__args.push_uri, ret, strlen (ret) + 1);
     sprintf (pd->__str, __STREAM_OUT__rtmp_pub(atrack, vtrack),
-        pd->__args.push_uri, pd->pipename, vn, pd->pipename, an);
+        pd->__args.push_uri, pd->pipename, vn, bitrate/1000, pd->pipename, an);
     g_print ("publish %s\n", pd->__str);
     convert_process (pd);
     sprintf(ourl,"%s",pd->__args.push_uri);

@@ -240,7 +240,7 @@ quit (int sig)
 static int port;
 static const char *tls_cert_file, *tls_key_file; 
 char *host;
-int mode;
+int mode = 4;
 
 static GOptionEntry entries[] = {
   {"cert-file", 'c', 0,

@@ -288,7 +288,11 @@ gint prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
   sprintf (pd->pipename, "dummy%d", new_id);
   if(!strncmp(pro,"rtmp",4)){
     //sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2udp(), pd->__args.src_uri, "127.0.0.1", new_id);
+    if(mode == 4)
     sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2tcp(), pd->__args.src_uri, 
+		    (long long)0, "127.0.0.1", new_id);
+    else
+    sprintf (pd->__str, __STREAM_TRANSMUXER_rtmp2tcp_8k(), pd->__args.src_uri, 
 		    (long long)0, "127.0.0.1", new_id);
   }else{
   }
@@ -366,7 +370,10 @@ gchar * message_process (const gchar * msg)
     sprintf (an, "atrack-id-%d", id);
     //sprintf (pd->__str, __STREAM_IN__ (atrack, vtrack), pd->__args.src_uri, vn,an);
     //sprintf (pd->__str, __STREAM_IN__TCP_TEST (atrack, vtrack), port, id, vn,an);
+    if( mode == 4)
     sprintf (pd->__str, __STREAM_IN__TCP (atrack, vtrack), port, vn,an);
+    else
+    sprintf (pd->__str, __STREAM_IN__TCP_8k (atrack, vtrack), port, vn,an);
 
     g_print ("pull-- %s \n", pd->__str);
     convert_process (pd);
@@ -376,8 +383,11 @@ gchar * message_process (const gchar * msg)
     
        JsonObject *sub_obj = json_object_get_object_member (obj,"encoder_params");
        int bitrate = json_object_get_int_member (sub_obj,"bitrate") ;
-    
+    if( mode == 4) 
     sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack), pd->__args.out_uri,
+        pd->pipename, vn, bitrate / 1000,pd->pipename, an);
+    else
+    sprintf (pd->__str, __STREAM_OUT__rtmp_8k (atrack, vtrack), pd->__args.out_uri,
         pd->pipename, vn, bitrate / 1000,pd->pipename, an);
     g_print ("pull-- %s \n", pd->__str);
     convert_process (pd);
@@ -534,7 +544,11 @@ gchar * message_process (const gchar * msg)
     sprintf (an, "atrack-id-%d", id);
        JsonObject *sub_obj = json_object_get_object_member (obj,"encoder_params");
        int bitrate = json_object_get_int_member (sub_obj,"bitrate");
-    sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack),
+    if(mode == 4)
+      sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack),
+        pd->__args.prev_uri, pd->pipename, vn, bitrate / 1000, pd->pipename, an);
+    else
+      sprintf (pd->__str, __STREAM_OUT__rtmp_8k (atrack, vtrack),
         pd->__args.prev_uri, pd->pipename, vn, bitrate / 1000, pd->pipename, an);
     convert_process (pd);
     g_print("switch %s\n", pd->__str);
@@ -655,7 +669,11 @@ set_opt:
        JsonObject *sub_obj = json_object_get_object_member (obj,"encoder_params");
        int bitrate = json_object_get_int_member (sub_obj,"bitrate");
     memcpy (pd->__args.push_uri, ret, strlen (ret) + 1);
+    if( mode == 4)
     sprintf (pd->__str, __STREAM_OUT__rtmp_pub(atrack, vtrack),
+        pd->__args.push_uri, pd->pipename, vn, bitrate/1000, pd->pipename, an);
+    else
+    sprintf (pd->__str, __STREAM_OUT__rtmp_pub_8k(atrack, vtrack),
         pd->__args.push_uri, pd->pipename, vn, bitrate/1000, pd->pipename, an);
     g_print ("publish %s\n", pd->__str);
     convert_process (pd);

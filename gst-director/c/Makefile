@@ -39,3 +39,5 @@ gstdc.o : gstdc.c partten.h gstd_pipe_logic_build.h
 hbsmsz  : simple-httpd.o gstdc.o
 	$(CC) -o $@ $^ $(CFLAGS) $(GST_CFLAGS) $(GLIB_JSON_LDFLAGS)  $(LDFLAGS) $(GST_LDFLAGS) $(GSOUP_LDFLAGS) $(GSTDC_LDFLAGS)
 
+install:
+	cp hbsmsz /home/hertz/sdb1/cerbero/build/dist/linux_x86_64/bin/vrsmszd

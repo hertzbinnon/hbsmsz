@@ -351,7 +351,7 @@ gchar * message_process (const gchar * msg)
     if( mode == 4 ){
       if(get_source_nums() == 5) { errorno=1; goto error;}
     }else{
-      if(get_source_nums() == 2) { errorno=1; goto error;}
+      if(get_source_nums() == 3) { errorno=1; goto error;}
     }
 
     ret = json_object_get_string_member (obj, "url");

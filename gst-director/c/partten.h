@@ -11,7 +11,7 @@
 
 #define __STREAM_IN__TCP(videoname,audioname) "tcpclientsrc host=127.0.0.1 port=%d ! tsdemux name=source ! queue name=myqueue ! video/x-h264,stream-format=byte-stream,alignment=nal ! h264parse ! nvh264dec !  queue name=myqueue ! interpipesink name=%s caps=video/x-raw,width=3840,height=1920 sync=false async=false source. ! queue name=myqueue ! avdec_aac ! audioconvert ! volume name=volume volume=1 ! audioconvert ! queue name=myqueue ! interpipesink name=%s caps=audio/mpeg sync=false async=false"
 
-#define __STREAM_IN__TCP_8k(videoname,audioname) "tcpclientsrc host=127.0.0.1 port=%d ! tsdemux name=source ! queue name=21queue ! video/x-h265,stream-format=byte-stream,alignment=nal ! h265parse ! nvh265dec !  queue name=22queue ! interpipesink name=%s caps=video/x-raw,width=7680,height=3840 sync=false async=false source. ! queue name=23queue ! avdec_aac ! audioconvert ! volume name=volume volume=1 ! audioconvert ! queue name=24queue ! interpipesink name=%s caps=audio/mpeg sync=false async=false"
+#define __STREAM_IN__TCP_8k(videoname,audioname) "tcpclientsrc host=127.0.0.1 port=%d ! tsdemux name=source ! queue name=21queue ! video/x-h265,stream-format=byte-stream,alignment=nal ! h265parse ! queue name=20queue ! nvh265dec !  queue name=22queue ! interpipesink name=%s caps=video/x-raw,width=7680,height=3840 sync=false async=false source. ! queue name=23queue ! avdec_aac ! audioconvert ! volume name=volume volume=1 ! audioconvert ! queue name=24queue ! interpipesink name=%s caps=audio/mpeg sync=false async=false"
 
 #define __STREAM_RENDER__audio()
 

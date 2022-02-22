@@ -348,7 +348,12 @@ gchar * message_process (const gchar * msg)
   }
 
   if (!strcmp (cmd, "pull")) {
-    if(get_source_nums() == 9) { errorno=1; goto error;}
+    if( mode == 4 ){
+      if(get_source_nums() == 5) { errorno=1; goto error;}
+    }else{
+      if(get_source_nums() == 2) { errorno=1; goto error;}
+    }
+
     ret = json_object_get_string_member (obj, "url");
     if (!ret){
       goto error;
@@ -546,10 +551,10 @@ gchar * message_process (const gchar * msg)
        int bitrate = json_object_get_int_member (sub_obj,"bitrate");
     if(mode == 4)
       sprintf (pd->__str, __STREAM_OUT__rtmp (atrack, vtrack),
-        pd->__args.prev_uri, pd->pipename, vn, bitrate / 1000, pd->pipename, an);
+        pd->__args.prev_uri, pd->pipename, vn, 1024/*(bitrate / 1000)*/, pd->pipename, an);
     else
       sprintf (pd->__str, __STREAM_OUT__rtmp_8k (atrack, vtrack),
-        pd->__args.prev_uri, pd->pipename, vn, bitrate / 1000, pd->pipename, an);
+        pd->__args.prev_uri, pd->pipename, vn, 1024/*(bitrate / 1000)*/, pd->pipename, an);
     convert_process (pd);
     g_print("switch %s\n", pd->__str);
     goto error;

@@ -7,6 +7,7 @@ enum GSTD_COMMAND{
   STOP = 0x04,
   DELETE = 0x08,
   SET_OPT = 0x10,
+  BUS_FILTER = 0x100,
 };
 
 typedef struct _OptionSet{

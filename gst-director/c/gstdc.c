@@ -86,7 +86,7 @@ gint get_source_nums(){
   for (int i = 0; i < len; i++) {
     if (!strncmp ("channel-id-", pipelist[i],11)) {
       flag += 1;
-      g_print("++++> %s\n",pipelist[i]);
+      //g_print("++++> %s\n",pipelist[i]);
     }
   }
   return flag;
@@ -107,7 +107,7 @@ gint is_exist (gchar * pipename)
     if (!strcmp (pipename, pipelist[i])) {
       flag = 1;
     }
-    g_print("--> %s\n",pipelist[i]);
+    //g_print("--> %s\n",pipelist[i]);
   }
 
   for (int i = 0; i < len; i++) {
@@ -133,6 +133,40 @@ get_property_value (const gchar * pname, const gchar * element,
   }
   //gstc_client_free (client);
   return ret;
+}
+/*
+GstcStatus 
+error_handler(GstClient *client,
+    const char *pipeline_name, const char *message_name,
+    const long long timeout, char *message, void *user_data){
+  g_print("%s == %s %s", pipeline_name, message_name, message);
+  PipelineDescribe * pd;
+  pd = g_malloc0 (sizeof (PipelineDescribe));
+  memset (pd, 0, sizeof (*pd));
+  g_print ("stop \n");
+  pd->cmd = DELETE;
+  sprintf (pd->pipename, "%s", "publish");
+  delete_gstd (client, pd);
+  free (pd);
+}
+*/
+void
+bus_filter_gstd (GstClient * client, PipelineDescribe * pd)
+{
+  GstcStatus ret;
+  char* message;
+
+  if (!is_exist (pd->pipename)) {
+    g_print("bus : %s not found\n", pd->pipename);
+    return;
+  }
+  ret = gstc_pipeline_bus_wait (client, pd->pipename, "error", 3000000000, &message);
+
+  if (GSTC_OK == ret) {
+    g_print ("bus filter:%s\n", pd->pipename);
+  } else {
+    g_print ("Publish error");
+  }
 }
 
 void
@@ -200,7 +234,7 @@ set_gstd (GstClient * client, PipelineDescribe * pd)
   if( ret != GSTC_OK)
     {g_print("list error\n");return;}
   for (int i = 0; i < len; i++) {
-    g_print ("element name %s\n", ele[i]);
+    //g_print ("element name %s\n", ele[i]);
     free(ele[i]);
   }
   free(ele);
@@ -247,6 +281,10 @@ convert_process (PipelineDescribe * pd)
   if (pd->cmd & SET_OPT) {
     g_print ("SET_OPT\n");
     set_gstd (client, pd);
+  }
+  if (pd->cmd & BUS_FILTER) {
+    g_print ("BUS Message\n");
+    bus_filter_gstd(client, pd);
   }
 //free_client:
 //  gstc_client_free (client);
@@ -299,8 +337,8 @@ gint prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
   g_print ("prepare -- %s \n", pd->__str);
   convert_process (pd);
   memcpy (pd->__args.src_uri, out_url, strlen (out_url)+1);
-  g_print ("url -- %s \n", out_url);
-  g_print ("url -- %s \n",pd->__args.src_uri );
+  //g_print ("url -- %s \n", out_url);
+  //g_print ("url -- %s \n",pd->__args.src_uri );
   sleep(2);
   return new_id;
 }
@@ -684,6 +722,8 @@ set_opt:
     convert_process (pd);
     sprintf(ourl,"%s",pd->__args.push_uri);
 
+    pd->cmd = BUS_FILTER;
+    convert_process (pd);
   } else if (!strcmp (cmd, "delay")) {
     gint msecs = json_object_get_int_member (obj,"time");
 #if 0
@@ -769,7 +809,7 @@ set_opt:
         clear_all();               
     }
   } else {
-
+       g_print("Not action !!!\n");
   }
 error:
   resp = make_response_mesg(cmd, id, vid, aid, ourl, errorno);

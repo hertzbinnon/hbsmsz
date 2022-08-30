@@ -43,3 +43,4 @@ typedef struct _StreamerInfo{
 
 } StreamerInfo;
 gchar* message_process(const gchar* msg);
+gboolean poll_status();

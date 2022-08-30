@@ -318,6 +318,7 @@ main (int argc, char **argv)
   g_print ("\nWaiting for requests...\n");
 
   loop = g_main_loop_new (NULL, TRUE);
+  g_timeout_add(10, poll_status,NULL);
   g_main_loop_run (loop);
 
   return 0;

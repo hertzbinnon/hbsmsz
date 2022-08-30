@@ -134,22 +134,18 @@ get_property_value (const gchar * pname, const gchar * element,
   //gstc_client_free (client);
   return ret;
 }
-/*
-GstcStatus 
-error_handler(GstClient *client,
-    const char *pipeline_name, const char *message_name,
-    const long long timeout, char *message, void *user_data){
-  g_print("%s == %s %s", pipeline_name, message_name, message);
+
+GstcStatus error_handler(GstClient * client){
+  //g_print("%s == %s %s", pipeline_name, message_name, message);
   PipelineDescribe * pd;
   pd = g_malloc0 (sizeof (PipelineDescribe));
   memset (pd, 0, sizeof (*pd));
-  g_print ("stop \n");
   pd->cmd = DELETE;
   sprintf (pd->pipename, "%s", "publish");
   delete_gstd (client, pd);
   free (pd);
 }
-*/
+
 void
 bus_filter_gstd (GstClient * client, PipelineDescribe * pd)
 {
@@ -163,9 +159,10 @@ bus_filter_gstd (GstClient * client, PipelineDescribe * pd)
   ret = gstc_pipeline_bus_wait (client, pd->pipename, "error", 3000000000, &message);
 
   if (GSTC_OK == ret) {
-    g_print ("bus filter:%s\n", pd->pipename);
+    g_print ("publish error \n");
+    error_handler(client);
   } else {
-    g_print ("Publish error");
+    g_print ("Publish success \n");
   }
 }
 
@@ -343,6 +340,30 @@ gint prepare_source(PipelineDescribe* pd, gint id, const gchar* pro){
   return new_id;
 }
 #endif
+
+gboolean poll_status(){
+  GstcStatus ret;
+  GstClient *client = connect_gstd ();
+  gchar **pipelist;
+  gint len;
+  char* message;
+  ret = gstc_pipeline_list (client, &pipelist, &len);
+  if (ret != GSTC_OK){
+     return TRUE;
+  }
+  for (int i = 0; i < len; i++) {
+    ret = gstc_pipeline_bus_wait (client, pipelist[i], "error", 0, &message);
+    if (GSTC_OK == ret) {
+      g_print ("%s error: %s \n", pipelist[i],message);
+      if (!strcmp (pipelist[i], "publish")) {
+        error_handler(client);
+      }
+    } 
+  }
+  return TRUE;
+}
+
+
 gchar * message_process (const gchar * msg)
 {
   GError *error = NULL;
